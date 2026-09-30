@@ -18,7 +18,7 @@ These are not milestones. They are the setup that makes the milestones resumable
 
 | ID | Goal | Depends on | Status | Issue |
 |---|---|---|---|---|
-| [M0](milestones/m0-skeleton.md) | Cargo workspace, justfile, CI, fixture repo, SvelteKit shell, health endpoint | — | not started | _(unset)_ |
+| [M0](milestones/m0-skeleton.md) | Cargo workspace, justfile, CI, fixture repo, SvelteKit shell, health endpoint | — | done (except the container image, deliberately deferred to M3 — see its notes) | _(unset)_ |
 | [M1](milestones/m1-validator.md) | **MVP.** Read-only validator: parse every stack, resolve both env scopes, report findings in the UI. Auth ships here | M0 | not started | _(unset)_ |
 | [M2](milestones/m2-app-setup.md) | App setup: `setup.toml` interpreter, `.env` editor, `$APPCONFIG_STORAGE` trees and secret files | M1 | not started | _(unset)_ |
 | [M3](milestones/m3-truenas-client-bootstrap.md) | `TrueNasApi` trait + websocket client + fake; datasets, users, groups, ACLs, networks; bootstrap script and hand-install guide | M1 | not started | _(unset)_ |

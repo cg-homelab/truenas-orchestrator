@@ -1,0 +1,48 @@
+services:
+  db-prometheus:
+    container_name: "${SERVICE_NAME}"
+    image: docker.io/prom/prometheus:v3.8.1
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+      # Option 1: Set retention time of metrict
+      - --storage.tsdb.retention.time=${METRICS_RETENTION_TIME}
+      # enable remote write over web
+      - --web.enable-remote-write-receiver
+      - --web.external-url=https://${SERVICE_NAME}.${DOMAIN_NAME}
+    networks:
+      - databases
+      - proxy # Comment out: if not public access
+    # Comment out: if public access through traefik
+    # ports:
+    #  - "${HTTP_PORT}:9090"
+
+    env_file:
+      - ${HOMELAB_STORAGE}/compose/.global.env
+      - ${HOMELAB_STORAGE}/compose/db-prometheus/.env
+
+    # Coment out: if not public access
+    labels:
+      - traefik.enable=true
+      # - traefik.http.routers.${SERVICE_NAME}.service=${SERVICE_NAME}_web
+      - traefik.http.routers.${SERVICE_NAME}.entrypoints=web
+      - traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SERVICE_NAME}.${DOMAIN_NAME}`)
+      - traefik.http.routers.${SERVICE_NAME}-secure.tls=true
+      - traefik.http.routers.${SERVICE_NAME}-secure.entrypoints=websecure
+      - traefik.http.routers.${SERVICE_NAME}-secure.rule=Host(`${SERVICE_NAME}.${DOMAIN_NAME}`)
+      - traefik.http.routers.${SERVICE_NAME}-secure.middlewares=authelia@docker
+    volumes:
+      - ${DATABASE_STORAGE}/prometheus:/prometheus
+      - ${APPDATA_STORAGE}/prometheus/config/prometheus.yaml:/etc/prometheus/prometheus.yaml:ro
+
+networks:
+  proxy:
+    external: true
+  databases:
+    external: true

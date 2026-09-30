@@ -1,0 +1,8 @@
+target
+node_modules
+frontend/build
+frontend/.svelte-kit
+.git
+docs
+fixtures
+*.db

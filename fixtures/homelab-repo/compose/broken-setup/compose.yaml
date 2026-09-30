@@ -1,0 +1,18 @@
+services:
+  broken-setup:
+    container_name: "${SERVICE_NAME}"
+    image: docker.io/library/alpine:3.22
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 64M
+    networks:
+      - databases
+    env_file:
+      - ${HOMELAB_STORAGE}/compose/.global.env
+      - ${HOMELAB_STORAGE}/compose/broken-setup/.env
+
+networks:
+  databases:
+    external: true

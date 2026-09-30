@@ -1,0 +1,55 @@
+secrets:
+  JWT_SECRET:
+    file: "/mnt/fast/appdata/authelia/secrets/JWT_SECRET"
+  SESSION_SECRET:
+    file: "/mnt/fast/appdata/authelia/secrets/SESSION_SECRET"
+  STORAGE_PASSWORD:
+    file: "/mnt/fast/appdata/authelia/secrets/STORAGE_PASSWORD"
+  STORAGE_ENCRYPTION_KEY:
+    file: "/mnt/fast/appdata/authelia/secrets/STORAGE_ENCRYPTION_KEY"
+services:
+  authelia:
+    container_name: "${SERVICE_NAME}"
+    image: "docker.io/authelia/authelia:latest"
+    restart: "unless-stopped"
+    networks:
+      - proxy
+      - databases
+    secrets:
+      [
+        "JWT_SECRET",
+        "SESSION_SECRET",
+        "STORAGE_PASSWORD",
+        "STORAGE_ENCRYPTION_KEY",
+      ]
+    env_file:
+      - ${HOMELAB_STORAGE}/compose/.global.env
+      - ${HOMELAB_STORAGE}/compose/authelia/.env
+    environment:
+      AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE: "/run/secrets/JWT_SECRET"
+      AUTHELIA_SESSION_SECRET_FILE: "/run/secrets/SESSION_SECRET"
+      AUTHELIA_STORAGE_POSTGRES_PASSWORD_FILE: "/run/secrets/STORAGE_PASSWORD"
+      AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: "/run/secrets/STORAGE_ENCRYPTION_KEY"
+    volumes:
+      - "/mnt/fast/appdata/authelia/config:/config"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SERVICE_NAME}.${DOMAIN_NAME}`)
+      - traefik.http.routers.${SERVICE_NAME}.entryPoints=websecure
+      - traefik.http.routers.${SERVICE_NAME}.tls=true
+      - traefik.http.middlewares.${SERVICE_NAME}.forwardAuth.address=http://${SERVICE_NAME}:9091/api/authz/forward-auth
+      ## The following commented line is for configuring the Authelia URL in the proxy. We strongly suggest this is
+      ## configured in the Session Cookies section of the Authelia configuration.
+      # traefik.http.middlewares.authelia.forwardAuth.address: 'http://authelia:9091/api/authz/forward-auth?authelia_url=https%3A%2F%2Fauth.example.com%2F'
+      - traefik.http.middlewares.${SERVICE_NAME}.forwardAuth.trustForwardHeader=true
+      - traefik.http.middlewares.${SERVICE_NAME}.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Email,Remote-Name
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+networks:
+  proxy:
+    external: true
+  databases:
+    external: true

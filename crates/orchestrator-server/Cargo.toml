@@ -1,0 +1,39 @@
+[package]
+name = "orchestrator-server"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "orchestrator"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0.104"
+axum = { version = "0.8.9", features = ["macros"] }
+clap = { version = "4.6.7", features = ["derive", "env"] }
+mime_guess = "2.0.5"
+rust-embed = { version = "8.12.0", features = ["interpolate-folder-path"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+thiserror = "2.0.21"
+tokio = { version = "1.53.1", features = ["rt-multi-thread", "macros", "signal", "fs"] }
+tower = "0.5.3"
+tower-http = { version = "0.7.1", features = ["trace", "compression-gzip", "cors", "fs"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+utoipa = { version = "6.0.0", features = ["axum_extras"] }
+homelab-model.workspace = true
+compose-model.workspace = true
+homelab-repo.workspace = true
+truenas-client.workspace = true
+orchestrator-db.workspace = true
+
+[[bin]]
+name = "openapi-dump"
+path = "src/bin/openapi_dump.rs"

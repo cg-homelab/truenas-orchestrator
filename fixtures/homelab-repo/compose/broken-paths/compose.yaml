@@ -1,0 +1,23 @@
+services:
+  broken-paths:
+    container_name: "${SERVICE_NAME}"
+    image: docker.io/library/alpine:3.22
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 64M
+    networks:
+      - isolated
+    env_file:
+      - ${HOMELAB_STORAGE}/compose/.global.env
+      - ${HOMELAB_STORAGE}/compose/broken-paths/.env
+    volumes:
+      # PATH001: nothing creates this and no setup.toml declares it
+      - ${APPCONFIG_STORAGE}/broken-paths/never-created:/data
+      # PATH003: escapes every permitted storage root
+      - ${APPCONFIG_STORAGE}/../../../etc:/host-etc:ro
+
+networks:
+  isolated:
+    external: true

@@ -1,0 +1,2 @@
+compose/.global.env
+compose/*/.env

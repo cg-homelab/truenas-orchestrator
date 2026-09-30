@@ -5,8 +5,13 @@ git-backed homelab repo full of Docker Compose stacks.
 
 ## Current state and how to resume
 
-**Status:** planning complete, no code written.
-**Next up:** M0 — skeleton (see [roadmap](roadmap.md)).
+**Status:** M0 done. Workspace, justfile, CI, fixtures and the SvelteKit shell are in place;
+`just check`, `just test` and `just check-api` all pass. The one exception is the container image:
+`just build-image` is written but has never been built to completion, deliberately — see the M0 notes.
+**Next up:** M1 — the read-only validator (see [roadmap](roadmap.md)).
+
+Start the dev loop with `just dev`, then open <http://localhost:5173>. Nothing in that loop touches
+TrueNAS: the backend reads `fixtures/homelab-repo/` and TrueNAS access goes through a fake.
 
 To pick this work up cold, read in this order:
 

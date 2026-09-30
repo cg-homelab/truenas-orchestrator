@@ -1,0 +1,29 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.96"
+license = "GPL-3.0-or-later"
+repository = "https://github.com/cg-homelab/truenas-orchestrator"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+todo = "warn"
+dbg_macro = "warn"
+
+[workspace.dependencies]
+homelab-model = { path = "crates/homelab-model" }
+compose-model = { path = "crates/compose-model" }
+homelab-repo = { path = "crates/homelab-repo" }
+truenas-client = { path = "crates/truenas-client" }
+orchestrator-db = { path = "crates/orchestrator-db" }
+
+[profile.release]
+strip = true
+lto = "thin"
+codegen-units = 1

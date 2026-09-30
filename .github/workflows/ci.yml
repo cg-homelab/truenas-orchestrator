@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+      - uses: oven-sh/setup-bun@v2
+      - uses: extractions/setup-just@v2
+
+      - name: Install frontend deps
+        run: cd frontend && bun install --frozen-lockfile
+
+      # svelte-check needs the SvelteKit type output, which only exists after a sync.
+      - name: Sync SvelteKit
+        run: cd frontend && bunx svelte-kit sync
+
+      - name: Build frontend
+        run: cd frontend && bun run build
+
+      - run: just check
+
+      # Route drift: the committed typed client must match the backend's OpenAPI description.
+      - run: just check-api
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@nextest
+      - uses: oven-sh/setup-bun@v2
+      - uses: extractions/setup-just@v2
+
+      - name: Install frontend deps
+        run: cd frontend && bun install --frozen-lockfile
+
+      # rust-embed needs the directory to exist even when the test does not serve assets.
+      - name: Build frontend
+        run: cd frontend && bun run build
+
+      - run: just test
+
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build linux/amd64 image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

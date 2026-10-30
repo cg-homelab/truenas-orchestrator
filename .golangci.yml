@@ -1,0 +1,87 @@
+version: "2"
+
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - revive
+    - gocritic
+    - errorlint
+    - exhaustive
+    - sloglint
+    - unparam
+    - gosec
+    - noctx
+    - bodyclose
+    - misspell
+    - copyloopvar
+    - depguard
+  settings:
+    errcheck:
+      check-type-assertions: true
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment # struct layout for bytes; readability wins at this scale
+        - shadow # flags every nested `err :=`
+    staticcheck:
+      checks: ["all"]
+    gocritic:
+      enabled-tags: [diagnostic, style]
+    exhaustive:
+      default-signifies-exhaustive: false
+    sloglint:
+      no-global: all
+      context: scope
+      static-msg: true
+      no-mixed-args: true
+      key-naming-case: snake
+      forbidden-keys: [time, level, msg, source, password, token, secret, api_key]
+    depguard:
+      rules:
+        domain-no-io:
+          files:
+            - "**/internal/homelab/**"
+            - "**/internal/compose/**"
+            - "!$test"
+          deny:
+            - pkg: os
+              desc: the domain is I/O-free; take bytes or values as arguments
+            - pkg: io/fs
+              desc: the domain is I/O-free; the caller reads files
+            - pkg: net
+              desc: the domain is I/O-free
+            - pkg: net/http
+              desc: HTTP belongs in internal/server
+            - pkg: database/sql
+              desc: SQL belongs in internal/sqlite
+            - pkg: os/exec
+              desc: running git belongs in internal/gitrepo
+  exclusions:
+    generated: lax
+    presets:
+      - std-error-handling
+    rules:
+      - path: _test\.go
+        linters: [gosec, unparam]
+      - path: internal/testutil/
+        linters: [gosec]
+
+formatters:
+  enable:
+    - gofumpt
+    - goimports
+  settings:
+    gofumpt:
+      extra:
+        group-params: true
+        clothe-returns: true
+    goimports:
+      local-prefixes:
+        - github.com/cg-homelab/truenas-orchestrator
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

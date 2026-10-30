@@ -1,0 +1,38 @@
+services:
+  db-client:
+    container_name: "${SERVICE_NAME}"
+    image: adminer
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+    env_file:
+      - ${HOMELAB_STORAGE}/compose/.global.env
+      - ${HOMELAB_STORAGE}/compose/db-client/.env
+
+    # Comment out: if public access through traefik
+    # ports:
+    #  - "${HTTP_PORT}:8080"
+
+    networks:
+      - databases
+      - proxy # Comment out: if not public access
+
+    # Coment out: if not public access
+    labels:
+      - traefik.enable=true
+      # - traefik.http.routers.${SERVICE_NAME}.service=${SERVICE_NAME}_web
+      - traefik.http.routers.${SERVICE_NAME}.entrypoints=web
+      - traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SERVICE_NAME}.${DOMAIN_NAME}`)
+      - traefik.http.routers.${SERVICE_NAME}-secure.tls=true
+      - traefik.http.routers.${SERVICE_NAME}-secure.entrypoints=websecure
+      - traefik.http.routers.${SERVICE_NAME}-secure.rule=Host(`${SERVICE_NAME}.${DOMAIN_NAME}`)
+      - traefik.http.routers.${SERVICE_NAME}-secure.middlewares=authelia@docker
+
+networks:
+  proxy:
+    external: true
+  databases:
+    external: true

@@ -1,0 +1,11 @@
+version: "2"
+sql:
+  - engine: sqlite
+    schema: internal/sqlite/migrations
+    queries: internal/sqlite/queries
+    gen:
+      go:
+        package: db
+        out: internal/sqlite/db
+        inflection_exclude_table_names:
+          - schema_meta

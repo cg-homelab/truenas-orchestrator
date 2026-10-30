@@ -5,8 +5,8 @@ git-backed homelab repo full of Docker Compose stacks.
 
 ## Current state and how to resume
 
-**Status:** planning complete, rewritten for Go on 2026-10-30. No code written.
-**Next up:** M0 — skeleton (see [roadmap](roadmap.md)).
+**Status:** M0 done.
+**Next up:** M1 — validator engine + CLI (see [roadmap](roadmap.md)).
 
 To pick this work up cold, read in this order:
 

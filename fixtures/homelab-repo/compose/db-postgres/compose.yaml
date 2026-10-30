@@ -1,0 +1,31 @@
+services:
+  db-postgres:
+    container_name: "${SERVICE_NAME}"
+    image: postgres:18.1-alpine
+    restart: always
+    # ports:
+    #   - 5432:5432
+    # set shared memory limit when using docker-compose
+    # shm_size: 2048mb
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+    # or set shared memory limit when deploy via swarm stack
+    networks: databases
+    volumes:
+      #  - type: tmpfs
+      #    target: /dev/shm
+      #    tmpfs:
+      #      size: 134217728 # 128*2^20 bytes = 128Mb
+      - ${DATABASE_STORAGE}/postgres:/var/lib/postgresql/data
+    env_file:
+      - ${HOMELAB_STORAGE}/compose/.global.env
+      - ${HOMELAB_STORAGE}/compose/db-postgres/.env
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+
+networks:
+  databases:
+    external: true

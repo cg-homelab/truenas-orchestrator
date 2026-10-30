@@ -61,6 +61,10 @@ Backend and frontend run on TrueNAS as a TrueNAS app.
 
 Run the frontend locally against the backend running on the TrueNAS server.
 
+## Development
+
+Prerequisites: [just](https://github.com/casey/just), Go 1.27 and Node 22+. Run `just setup && just dev` to install the pinned tools and start the backend and frontend dev server against the fixture repo. The Go binary embeds the built SPA from `frontend/build/`, so `go build ./...` needs the SPA built once on a fresh clone; `just setup` does that.
+
 ## Documentation
 
 | Document | What it is |

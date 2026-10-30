@@ -19,7 +19,7 @@ These are not milestones. They are the setup that makes the milestones resumable
 | ID | Goal | Depends on | Status | Issue |
 |---|---|---|---|---|
 | [M0](milestones/m0-skeleton.md) | Go module, justfile, lint, CI, fixture repo, SvelteKit shell, health endpoint | — | done | _(unset)_ |
-| [M1](milestones/m1-validator.md) | **MVP.** Validator engine + `orchestrator validate` CLI: parse every stack, resolve both env scopes, report findings. No HTTP | M0 | not started | _(unset)_ |
+| [M1](milestones/m1-validator.md) | **MVP.** Validator engine + `orchestrator validate` CLI: parse every stack, resolve both env scopes, report findings. No HTTP | M0 | done | _(unset)_ |
 | [M2](milestones/m2-validator-server.md) | Validator server, auth, and the validator UI | M1 | not started | _(unset)_ |
 | [M3](milestones/m3-app-setup.md) | App setup: `setup.toml` interpreter, `.env` editor, `$APPCONFIG_STORAGE` trees and secret files | M2 | not started | _(unset)_ |
 | [M4](milestones/m4-truenas-client-bootstrap.md) | `homelab.TrueNAS` interface + websocket client + fake; datasets, users, groups, ACLs, networks; bootstrap script and hand-install guide | M2 | not started | _(unset)_ |

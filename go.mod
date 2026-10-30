@@ -11,9 +11,12 @@ tool (
 
 require (
 	github.com/caarlos0/env/v11 v11.4.1
+	github.com/compose-spec/compose-go/v2 v2.16.2
 	github.com/danielgtaylor/huma/v2 v2.40.0
 	github.com/google/go-cmp v0.7.0
+	github.com/pelletier/go-toml/v2 v2.4.3
 	github.com/pressly/goose/v3 v3.29.0
+	go.yaml.in/yaml/v3 v3.0.5
 	golang.org/x/sync v0.24.0
 	modernc.org/sqlite v1.61.0
 )
@@ -75,9 +78,11 @@ require (
 	github.com/prometheus/procfs v0.22.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/riza-io/grpc-go v0.2.0 // indirect
+	github.com/santhosh-tekuri/jsonschema/v6 v6.0.1 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/sethvargo/go-retry v0.5.0 // indirect
 	github.com/shopspring/decimal v1.5.0 // indirect
+	github.com/sirupsen/logrus v1.10.1 // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/sqlc-dev/doubleclick v1.0.0 // indirect

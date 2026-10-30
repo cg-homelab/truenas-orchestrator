@@ -15,4 +15,7 @@ var (
 	ErrForbidden = errors.New("forbidden")
 	// ErrUnauthenticated means the caller is not authenticated.
 	ErrUnauthenticated = errors.New("unauthenticated")
+	// ErrUnreadable is returned by Repo.ReadFile and Repo.Stat for a path that is a symlink
+	// escaping the repo, a directory where a file was expected, or otherwise not a regular file.
+	ErrUnreadable = errors.New("not a readable regular file")
 )

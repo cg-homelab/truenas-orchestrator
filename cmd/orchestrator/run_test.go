@@ -83,21 +83,6 @@ func TestRunUsageErrors(t *testing.T) {
 	}
 }
 
-func TestRunValidateStub(t *testing.T) {
-	for _, args := range [][]string{
-		{"orchestrator", "validate", "fixtures/homelab-repo"},
-		{"orchestrator", "validate", "--json", "fixtures/homelab-repo"},
-	} {
-		var stdout bytes.Buffer
-		if err := run(t.Context(), args, nil, &stdout); err != nil {
-			t.Fatalf("run(%q) error = %v", args, err)
-		}
-		if got, want := stdout.String(), "validate: not yet implemented (M1)\n"; got != want {
-			t.Errorf("run(%q) output = %q, want %q", args, got, want)
-		}
-	}
-}
-
 func TestRunServeConfigErrors(t *testing.T) {
 	dbPath := "ORCH_DB_PATH=" + filepath.Join(t.TempDir(), "o.db")
 	tests := []struct {

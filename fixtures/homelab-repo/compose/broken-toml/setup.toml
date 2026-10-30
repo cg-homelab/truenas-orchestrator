@@ -1,0 +1,7 @@
+[app]
+name = "broken-toml"
+
+# SETUP005: the table header below is never closed, so the file is not parseable TOML
+[[dirs]
+path = "${APPCONFIG_STORAGE}/broken-toml/data"
+mode = "0750"

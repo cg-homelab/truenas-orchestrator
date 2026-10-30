@@ -27,10 +27,12 @@ Every finding carries: code, severity, file, line, message, and a suggested fix.
 
 | Code | Severity | Detects | Real example | Suggested fix |
 |---|---|---|---|---|
-| `COMPOSE001` | error | `compose.yaml` is not structurally valid per the Compose spec | `compose/db-postgres/compose.yaml` — `networks: databases` is a bare string where a sequence or mapping is required | Change to `networks:` then `- databases` |
+| `COMPOSE001` | error | `compose.yaml` is not structurally valid per the Compose spec, or contains an interpolation template Compose rejects (`${}`, `${FOO BAR}`, an unterminated `${FOO`) | `compose/db-postgres/compose.yaml` — `networks: databases` is a bare string where a sequence or mapping is required | Change to `networks:` then `- databases` |
 | `COMPOSE002` | error | File is not parseable YAML | — | Fix the YAML syntax |
 | `COMPOSE003` | warn | A service has no `deploy.resources.limits` | — | Add cpu and memory limits |
 | `COMPOSE004` | warn | File is named `compose.yml`, contract requires `compose.yaml` | legacy `stacks/` layout | Rename to `compose.yaml` |
+| `COMPOSE005` | error | An app directory under `compose/` has no `compose.yaml` (and no `compose.yml`), or it is not a readable regular file | — | Add one, or remove the directory |
+| `COMPOSE006` | error | App directory name under `compose/` does not match `[a-z0-9][a-z0-9-]*`; the stack is not validated further | — | Rename the directory |
 
 ## ENV — environment variables
 
@@ -39,11 +41,11 @@ Every finding carries: code, severity, file, line, message, and a suggested fix.
 | `ENV001` | error | A `${VAR}` in **interpolation** position resolves from nothing in the deploy env | `compose/db-prometheus/compose.yaml` uses `${APPDATA_STORAGE}`; only `APPCONFIG_STORAGE` is defined. Also `${HTTP_PORT}`, where `example.env` defines `PORT` | Define the variable, or correct the reference to the defined name |
 | `ENV002` | error | A `${VAR}` in **container** position resolves from nothing in the `env_file:` chain | — | Add the key to `.global.env` or `<app>/.env` |
 | `ENV003` | error | A variable is available only in container scope but is referenced in an interpolation position. **The highest-value check** — see [architecture/env-scopes.md](architecture/env-scopes.md) | `${DATABASE_STORAGE}` in a `volumes:` entry, supplied only via `env_file:` | Ensure the orchestrator supplies it in the deploy env; do not rely on `env_file:` for interpolation |
-| `ENV004` | error | An `env_file:` path does not exist after interpolation | `.env` not yet created from `example.env` | Run app setup, or create the file |
+| `ENV004` | error (warn when it is the app's own `.env`) | An `env_file:` path does not exist after interpolation. The app's own `compose/<app>/.env` is expected whenever `example.env` exists, even if `env_file:` does not list it; its absence is outstanding setup (`NeedsSetup`), any other missing path is `Broken`. Also (error): an env file that exists but cannot be used — a symlink leaving the repo, not a regular file, or an unterminated quoted value | `.env` not yet created from `example.env` | Run app setup, or create the file |
 | `ENV005` | warn | A key present in `example.env` is missing from `.env` | — | Add the key; the template defines the expected contract |
 | `ENV006` | info | A key present in `.env` is absent from `example.env` | — | Add it to the template so other deployments know it exists |
 | `ENV007` | error | A value fails a validator declared in `setup.toml` `[env_validators]` | `METRICS_RETENTION_TIME=60` fails `type = "duration"`; Prometheus rejects `--storage.tsdb.retention.time=60` | Use a unit, e.g. `60d` |
-| `ENV008` | warn | A key is defined in `example.env` or `.env` but referenced nowhere in `compose.yaml` | `PORT` in `compose/db-prometheus/example.env` | Remove it, or correct the compose reference |
+| `ENV008` | warn | A key defined in `example.env` or `.env` is referenced nowhere in `compose.yaml`, reported only when the same stack has at least one `ENV001` (an unresolved interpolation reference), which the message lists — e.g. `PORT` defined while `${HTTP_PORT}` is unresolved. An unreferenced key alone is not a defect: the image may read it straight from `env_file:` | `PORT` in `compose/db-prometheus/example.env` | Remove it, or correct the compose reference |
 | `ENV009` | error | A placeholder value was never replaced | `POSTGRES_PASSWORD=REPLACE_THIS` in `compose/db-postgres/example.env`, once copied to `.env` | Set a real value |
 | `ENV010` | warn | `SERVICE_NAME` does not equal the app directory name | — | Make them match; Traefik labels and `container_name` depend on it |
 
@@ -68,9 +70,11 @@ Every finding carries: code, severity, file, line, message, and a suggested fix.
 | Code | Severity | Detects | Real example | Suggested fix |
 |---|---|---|---|---|
 | `SETUP001` | warn | App ships a legacy `setup.sh`, which is never executed | `compose/authelia/setup.sh` | Port it to `setup.toml` — see [architecture/setup-toml.md](architecture/setup-toml.md) |
-| `SETUP002` | error | `setup.toml` contains an unknown key | — | Remove it, or add the primitive to the registry deliberately |
-| `SETUP003` | warn | `setup.toml` declares `requires` on a stack that is not `Ready` | — | Set up the required stack first |
+| `SETUP002` | error | `setup.toml` contains an unknown key, a value of the wrong type for a known key (`requires = "a"`), or an `[env_validators]` entry has an unknown `type` (an unknown value of a known key) | — | Remove it, or add the primitive to the registry deliberately |
+| `SETUP003` | warn | `setup.toml` declares `requires` on a stack that is not `Ready`, or does not exist | — | Set up the required stack first |
 | `SETUP004` | warn | Setup is declared but has never been run for this app | — | Run setup |
+| `SETUP005` | error | `setup.toml` is not parseable TOML (syntax error) | — | Fix the TOML syntax |
+| `SETUP006` | error | `setup.toml` `[app] name` does not equal the app directory name | — | Make them match |
 
 ## GIT — repository hygiene
 

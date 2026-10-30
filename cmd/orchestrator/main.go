@@ -4,7 +4,7 @@
 // Usage:
 //
 //	orchestrator serve
-//	orchestrator validate [--json] <path>
+//	orchestrator validate [--json] [--homelab-storage DIR] [--check-host-paths] <path>
 //	orchestrator openapi
 package main
 
@@ -25,7 +25,7 @@ const (
 )
 
 // errUsage marks errors caused by how the command was invoked. main exits 2 for them.
-var errUsage = errors.New("usage: orchestrator serve | validate [--json] <path> | openapi")
+var errUsage = errors.New("usage: orchestrator serve | validate [--json] [--homelab-storage DIR] [--check-host-paths] <path> | openapi")
 
 func main() {
 	if err := run(context.Background(), os.Args, os.Environ(), os.Stdout); err != nil {
@@ -59,5 +59,5 @@ func exitCode(err error) int {
 	if errors.Is(err, errUsage) {
 		return exitUsage
 	}
-	return exitError
+	return exitError // includes errFindings
 }

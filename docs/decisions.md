@@ -459,3 +459,31 @@ touches no TrueNAS API applies to both as well.
 
 **Rejected:** keeping M0–M6 and only swapping the technology (leaves the oversized milestone in place);
 merging M0 into M1 (the first real code would land without guardrails).
+
+---
+
+## D29 — Compose substitution grammar is scanned by our own code, differentially tested against compose-go
+
+**Amends D20.** `schema.Validate` still decides `COMPOSE001`. compose-go's `template` package is no
+longer called at runtime: `internal/homelab/interpolate.go` (`ScanTemplate`, `Interpolate`) implements
+the grammar — `$VAR`, `${VAR}`, `${VAR:-d}`, `${VAR-d}`, `${VAR:+a}`, `${VAR+a}`, `${VAR:?e}`, `${VAR?e}`,
+nesting in the operand, and `$$` as a literal `$` — mirroring compose-go's pattern and brace matching.
+
+Why: the validator needs every reference with its exact form and line, and must not write to a global
+logger. `template.ExtractVariables` merges occurrences per name (and cannot tell `${A:-}` from `${A}`),
+so per-reference line tagging is impossible through it. `template.SubstituteWithOptions(...,
+template.WithoutLogging)` still logs through the global logrus logger for an unset variable nested in a
+default (`${A:-${B}}`) or following an operator in the same string (`${A:-x} ${B}`): those parts go
+through the plain `Substitute`, which ignores the options. Verified against compose-go v2.16.2.
+
+**Consequence:** every grammar case in `internal/homelab/interpolate_test.go` is also run through
+compose-go's `template` package (`TestGrammarMatchesComposeGo`): the names found must equal
+`ExtractVariables`', a template compose-go rejects must yield no reference, and `Interpolate` must equal
+`SubstituteWithOptions` with every name set non-empty and with every name set empty. The cases include
+`${A}`, `${A:-d}`, `${A-d}`, `${A:?e}`, `${A?e}`, `${A:+x}`, `${A+x}`, `$A`, `$$` and `${A:-${B}}`, so a
+divergence after a compose-go upgrade fails CI. compose-go stays a dependency for `schema` and as the
+test oracle.
+
+**Rejected:** calling `template` at runtime and discarding its logger (silencing logrus means mutating
+its global state, which the guidelines forbid in library code, and still leaves `ExtractVariables`
+unable to tag lines).

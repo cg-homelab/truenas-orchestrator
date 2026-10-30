@@ -1,0 +1,29 @@
+services:
+  env-container-only:
+    container_name: "${SERVICE_NAME}"
+    image: docker.io/library/alpine:3.22
+    # ENV002: $$MISSING is evaluated by the container's shell, and nothing in container scope
+    # defines it. $$DATA_DIR is fine: environment: below defines it.
+    command: ["sh", "-c", "ls $$DATA_DIR && echo $$MISSING"]
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 64M
+    networks:
+      - home
+    env_file:
+      - ${HOMELAB_STORAGE}/compose/.global.env
+      - ${HOMELAB_STORAGE}/compose/env-container-only/.env
+      - ./extra.env
+    environment:
+      DATA_DIR: /mnt/to/apps/appconfigs/env-container-only/data
+    volumes:
+      # ENV003: DATA_DIR exists only in container scope (environment:), never in the deploy env
+      - ${DATA_DIR}:/data
+      # ENV003: EXTRA_DIR exists only in container scope (env_file: extra.env)
+      - ${EXTRA_DIR}:/extra
+
+networks:
+  home:
+    external: true

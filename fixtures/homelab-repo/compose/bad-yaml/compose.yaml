@@ -1,0 +1,7 @@
+services:
+  bad-yaml:
+    image: docker.io/library/alpine:3.22
+    networks:
+      - home
+     - databases
+    environment: [ unclosed

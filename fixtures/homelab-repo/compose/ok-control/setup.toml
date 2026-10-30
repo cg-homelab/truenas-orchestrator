@@ -1,0 +1,9 @@
+[app]
+name = "ok-control"
+
+[[dirs]]
+path = "${APPCONFIG_STORAGE}/ok-control/html"
+mode = "0755"
+
+[env_validators]
+SERVICE_NAME = { type = "identifier", equals_app_name = true }

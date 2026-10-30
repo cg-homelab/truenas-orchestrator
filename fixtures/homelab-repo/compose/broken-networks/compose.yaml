@@ -1,0 +1,22 @@
+services:
+  broken-networks:
+    container_name: "${SERVICE_NAME}"
+    image: docker.io/library/alpine:3.22
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 64M
+    networks:
+      - backend      # NET001: not one of home/proxy/isolated/databases
+      - databases    # NET002: used but absent from the top-level networks block
+      - home         # NET003: declared below without external: true
+    env_file:
+      - ${HOMELAB_STORAGE}/compose/.global.env
+      - ${HOMELAB_STORAGE}/compose/broken-networks/.env
+
+networks:
+  backend:
+    external: true
+  home:
+    driver: bridge

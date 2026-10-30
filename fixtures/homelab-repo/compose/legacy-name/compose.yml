@@ -1,0 +1,13 @@
+services:
+  legacy-name:
+    container_name: "${SERVICE_NAME}"
+    image: docker.io/library/alpine:3.22
+    networks:
+      - home
+    env_file:
+      - ${HOMELAB_STORAGE}/compose/.global.env
+      - ${HOMELAB_STORAGE}/compose/legacy-name/.env
+
+networks:
+  home:
+    external: true

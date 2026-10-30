@@ -1,0 +1,24 @@
+services:
+  ok-control:
+    container_name: "${SERVICE_NAME}"
+    image: docker.io/library/nginx:1.29-alpine
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    networks:
+      - proxy
+    env_file:
+      - ${HOMELAB_STORAGE}/compose/.global.env
+      - ${HOMELAB_STORAGE}/compose/ok-control/.env
+    volumes:
+      - ${APPCONFIG_STORAGE}/ok-control/html:/usr/share/nginx/html:ro
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.${SERVICE_NAME}.rule=Host(`${SERVICE_NAME}.${DOMAIN_NAME}`)
+
+networks:
+  proxy:
+    external: true

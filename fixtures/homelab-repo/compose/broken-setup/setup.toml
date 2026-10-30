@@ -1,0 +1,10 @@
+[app]
+name = "broken-setup"
+# SETUP003: db-postgres is Broken (COMPOSE001), so this requirement cannot be satisfied
+requires = ["db-postgres"]
+
+[[dirs]]
+path = "${APPCONFIG_STORAGE}/broken-setup/data"
+mode = "0750"
+# SETUP002: not a primitive in the registry
+recursive_chown = true

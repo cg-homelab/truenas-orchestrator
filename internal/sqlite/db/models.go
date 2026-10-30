@@ -4,7 +4,46 @@
 
 package db
 
+import (
+	"database/sql"
+)
+
+type ApiToken struct {
+	ID         string
+	UserID     int64
+	Name       string
+	TokenHash  string
+	CreatedAt  int64
+	LastUsedAt sql.NullInt64
+}
+
+type Job struct {
+	ID         string
+	Kind       string
+	State      string
+	CreatedAt  int64
+	StartedAt  sql.NullInt64
+	FinishedAt sql.NullInt64
+	Error      sql.NullString
+	LogJson    string
+}
+
 type SchemaMeta struct {
 	Key   string
 	Value string
+}
+
+type Session struct {
+	ID         string
+	UserID     int64
+	CreatedAt  int64
+	LastSeenAt int64
+	ExpiresAt  int64
+}
+
+type User struct {
+	ID           int64
+	Username     string
+	PasswordHash string
+	CreatedAt    int64
 }

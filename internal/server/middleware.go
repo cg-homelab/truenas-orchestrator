@@ -4,19 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
-
-	"github.com/danielgtaylor/huma/v2"
 )
-
-// authenticate is the huma middleware that enforces each operation's declared Security.
-//
-// M0 placeholder: it passes every request through. M2 replaces it with session and bearer
-// token checks. It is registered before any operation so that replacement covers them all.
-func authenticate() func(ctx huma.Context, next func(huma.Context)) {
-	return func(ctx huma.Context, next func(huma.Context)) {
-		next(ctx)
-	}
-}
 
 // logRequests logs one line per request with its method, path, status and duration.
 func logRequests(logger *slog.Logger) func(http.Handler) http.Handler {

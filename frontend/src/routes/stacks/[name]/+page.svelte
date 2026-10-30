@@ -1,10 +1,13 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { page } from '$app/state';
 	import { api, errorMessage } from '$lib/api';
 	import { repo } from '$lib/repo.svelte';
 	import type { components } from '$lib/api.d';
 	import Findings from '$lib/components/Findings.svelte';
 	import EnvTable from '$lib/components/EnvTable.svelte';
+	import EnvEditor from '$lib/components/EnvEditor.svelte';
+	import SetupWizard from '$lib/components/SetupWizard.svelte';
 
 	let stack = $state<components['schemas']['StackDetail'] | null>(null);
 	let revealed = $state(false);
@@ -35,13 +38,33 @@
 		}
 	}
 
-	// Reload (masked) when the stack changes or a fetch completes.
+	// Bumped after each write by one component so the other reloads.
+	let envWrites = $state(0);
+	let setupWrites = $state(0);
+
+	// After a write the server's report cache is invalidated: reload the detail (masked) and the
+	// repo bar. repo.version is not bumped: the stacks list re-loads when it mounts anyway.
+	async function reload() {
+		await Promise.all([load(false), repo.refresh()]);
+	}
+
+	// The stack whose detail is shown; a different one blanks the page first.
+	let shown = '';
+
+	// Reload (masked) when the stack changes or a fetch completes. A fetch reloads in place, so
+	// the editor and wizard stay mounted and keep unsaved edits and a running job's log; they
+	// reload themselves through refreshKey.
 	$effect(() => {
 		void repo.version;
-		void name;
-		stack = null;
-		revealed = false;
-		load(false);
+		const n = name;
+		untrack(() => {
+			if (n !== shown) {
+				shown = n;
+				stack = null;
+			}
+			revealed = false;
+			load(false);
+		});
 	});
 </script>
 
@@ -73,5 +96,24 @@
 		</div>
 		<EnvTable title="Interpolation scope (deploy env)" vars={stack.interpolation ?? []} reveal={revealed} />
 		<EnvTable title="Container scope (env_file + environment)" vars={stack.container ?? []} reveal={revealed} />
+
+		{#key name}
+			<EnvEditor
+				{name}
+				refreshKey={setupWrites + repo.version}
+				onchange={() => {
+					envWrites++;
+					reload();
+				}}
+			/>
+			<SetupWizard
+				{name}
+				refreshKey={envWrites + repo.version}
+				onchange={() => {
+					setupWrites++;
+					reload();
+				}}
+			/>
+		{/key}
 	{/if}
 </main>

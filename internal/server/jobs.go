@@ -39,8 +39,18 @@ var urlCredentials = regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9+.-]*://)[^/@\s]+@`)
 // scrub removes URL credentials from a line before it is stored or shown.
 func scrub(s string) string { return urlCredentials.ReplaceAllString(s, "${1}[REDACTED]@") }
 
-// jobFunc is the work of a job. report appends one line to the job log.
+// jobFunc is the work of a job. report appends one line to the job log. jobIDFrom(ctx) returns
+// the job's id.
 type jobFunc func(ctx context.Context, report func(line string)) error
+
+// jobIDKey is the context key for the id of the running job.
+type jobIDKey struct{}
+
+// jobIDFrom returns the id of the job whose function received ctx, or "".
+func jobIDFrom(ctx context.Context) string {
+	id, _ := ctx.Value(jobIDKey{}).(string)
+	return id
+}
 
 // job is a queued or running job, kept in memory so get-job and job-events can follow it live.
 type job struct {
@@ -289,6 +299,7 @@ func (r *jobRunner) call(ctx context.Context, j *job) (err error) {
 			err = errors.New("internal error")
 		}
 	}()
+	ctx = context.WithValue(ctx, jobIDKey{}, j.rec.ID)
 	return j.run(ctx, func(line string) { j.appendLine(scrub(line)) })
 }
 

@@ -22,6 +22,8 @@ type fakeRepo struct {
 	status  homelab.RepoStatus
 	// unreadable paths report homelab.ErrUnreadable, like a symlink leaving the repo.
 	unreadable map[string]bool
+	// notIgnored paths have no .gitignore rule; every other path is ignored.
+	notIgnored map[string]bool
 }
 
 var _ homelab.Repo = (*fakeRepo)(nil)
@@ -106,4 +108,8 @@ func (r *fakeRepo) Stat(_ context.Context, rel string) (homelab.FileInfo, error)
 
 func (r *fakeRepo) Tracked(_ context.Context, rel string) (bool, error) {
 	return r.tracked[path.Clean(rel)], nil
+}
+
+func (r *fakeRepo) Ignored(_ context.Context, rel string) (bool, error) {
+	return !r.notIgnored[path.Clean(rel)], nil
 }

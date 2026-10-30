@@ -18,6 +18,7 @@ import (
 	"github.com/cg-homelab/truenas-orchestrator/frontend"
 	"github.com/cg-homelab/truenas-orchestrator/internal/gitrepo"
 	"github.com/cg-homelab/truenas-orchestrator/internal/homelab"
+	"github.com/cg-homelab/truenas-orchestrator/internal/hostfs"
 	"github.com/cg-homelab/truenas-orchestrator/internal/server"
 	"github.com/cg-homelab/truenas-orchestrator/internal/sqlite"
 )
@@ -85,11 +86,14 @@ func runServe(ctx context.Context, args, environ []string, stdout io.Writer) err
 		return fmt.Errorf("serve: %w", err)
 	}
 
+	repo := gitrepo.New(storage)
 	handler := server.NewServer(server.Deps{
 		Logger:          logger,
 		SPA:             spa,
 		Store:           store,
-		Repo:            gitrepo.New(storage),
+		Repo:            repo,
+		Secrets:         gitrepo.NewEnvStore(repo),
+		Host:            hostfs.New(),
 		Validate:        validate,
 		SecureCookies:   cfg.SecureCookies,
 		SessionIdle:     cfg.SessionIdle,

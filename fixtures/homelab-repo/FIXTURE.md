@@ -27,7 +27,7 @@ has an `ENV001`. A stack is `Broken` if and only if it has an error-severity fin
 | `ok-control` | synthetic | Ready | **none** — zero findings. The control |
 | `db-postgres` | real (+ synthetic `.env`) | Broken | `COMPOSE001` (`networks: databases` bare string), `ENV009` (`POSTGRES_PASSWORD=REPLACE_THIS` in `.env`). `${DATABASE_STORAGE}` resolves from `compose/.global.env` line 14: no `ENV003`. `POSTGRES_PASSWORD` is unreferenced but the stack has no `ENV001`, so no `ENV008` |
 | `db-prometheus` | real (+ synthetic `.env`, `setup.toml`) | Broken | `ENV001` (`${APPDATA_STORAGE}` undefined), `ENV007` (`METRICS_RETENTION_TIME=60` fails `type = "duration"`), `ENV008` (`PORT` unused, listed against `APPDATA_STORAGE`). `${HTTP_PORT}` is inside a YAML comment, so it is not a reference |
-| `authelia` | real | NeedsSetup | `ENV004` (warn: no `.env`), `PATH002` (hardcoded `/mnt/fast/appdata/...`, four `secrets:` and one `volumes:` entry), `SETUP001` (legacy `setup.sh`) |
+| `authelia` | real | NeedsSetup | `ENV004` (warn: no `.env`), `PATH002` (hardcoded `/mnt/fast/appdata/...`, four `secrets:` and one `volumes:` entry), `SETUP001` (legacy `setup.sh`), `SETUP003` (warn: `setup.toml` has `requires = ["db-postgres"]` and `db-postgres` is Broken) |
 | `db-client` | real | NeedsSetup | `ENV004` (warn: no `.env`) |
 | `db-redis` | real | NeedsSetup | `ENV004` (warn: no `.env`; reported on `compose/db-redis/.env` itself since the file has no services and so no `env_file:`) |
 | `db-timescale` | real | Broken | `COMPOSE001` (`networks: databases`), `ENV004` (warn: no `.env`), `PATH002` (`/mnt/fast/databases/timescale`) |
@@ -41,6 +41,9 @@ has an `ENV001`. A stack is `Broken` if and only if it has an error-severity fin
 | `Bad_Name` | synthetic | Broken | `COMPOSE006` (directory name does not match `[a-z0-9][a-z0-9-]*`); the stack is not validated further |
 | `bad-yaml` | synthetic | Broken | `COMPOSE002` — not parseable as YAML; no other check runs |
 | `legacy-name` | synthetic | Ready | `COMPOSE004` (named `compose.yml`), `COMPOSE003` (no `deploy.resources.limits`) |
+
+`authelia/setup.toml` is the port of its `setup.sh` (M3 acceptance criterion 9) and includes a deferred
+`[[provision.postgres]]`, which setup lists but does not run.
 
 With host checks enabled and every host path absent, `ok-control` reports one `PATH001` at **info**
 severity (its `setup.toml` `[[dirs]]` declares the path) and becomes `NeedsSetup`

@@ -169,6 +169,21 @@ func (r *Repo) Tracked(ctx context.Context, rel string) (bool, error) {
 	return false, err
 }
 
+// Ignored reports whether a .gitignore rule matches rel. --no-index makes a tracked file count
+// as ignored when a rule matches it, so this answers "is there a rule", and Tracked answers the
+// rest.
+func (r *Repo) Ignored(ctx context.Context, rel string) (bool, error) {
+	_, err := r.git(ctx, "check-ignore", "-q", "--no-index", "--", rel)
+	if err == nil {
+		return true, nil
+	}
+	var exitErr *exec.ExitError
+	if errors.As(err, &exitErr) && exitErr.ExitCode() == 1 {
+		return false, nil
+	}
+	return false, err
+}
+
 // git runs git in the repo root and returns stdout. Errors carry git's stderr and wrap the
 // underlying *exec.ExitError.
 func (r *Repo) git(ctx context.Context, args ...string) ([]byte, error) {

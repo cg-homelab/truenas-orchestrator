@@ -70,7 +70,7 @@ Every finding carries: code, severity, file, line, message, and a suggested fix.
 | Code | Severity | Detects | Real example | Suggested fix |
 |---|---|---|---|---|
 | `SETUP001` | warn | App ships a legacy `setup.sh`, which is never executed | `compose/authelia/setup.sh` | Port it to `setup.toml` — see [architecture/setup-toml.md](architecture/setup-toml.md) |
-| `SETUP002` | error | `setup.toml` contains an unknown key, a value of the wrong type for a known key (`requires = "a"`), or an `[env_validators]` entry has an unknown `type` (an unknown value of a known key) | — | Remove it, or add the primitive to the registry deliberately |
+| `SETUP002` | error | `setup.toml` contains an unknown key, a value of the wrong type for a known key (`requires = "a"`), or an `[env_validators]` entry has an unknown `type` (an unknown value of a known key); also a primitive that breaks its field rules: `mode` not octal or granting setuid/setgid/sticky (or group/other on a secret), `generate` with a bad `bytes` or `encoding`, `on_exists` outside `keep`/`overwrite`/`prompt`, or not exactly one of `generate`/`value_from` (secrets) or `from`/`create_empty` (config files) | — | Remove it, or add the primitive to the registry deliberately |
 | `SETUP003` | warn | `setup.toml` declares `requires` on a stack that is not `Ready`, or does not exist | — | Set up the required stack first |
 | `SETUP004` | warn | Setup is declared but has never been run for this app | — | Run setup |
 | `SETUP005` | error | `setup.toml` is not parseable TOML (syntax error) | — | Fix the TOML syntax |

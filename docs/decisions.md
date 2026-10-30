@@ -487,3 +487,42 @@ test oracle.
 **Rejected:** calling `template` at runtime and discarding its logger (silencing logrus means mutating
 its global state, which the guidelines forbid in library code, and still leaves `ExtractVariables`
 unable to tag lines).
+
+---
+
+## D30 — Host filesystem writes go through internal/hostfs behind homelab.SetupHost
+
+A setup run writes directories, secret files and config files under `$APPCONFIG_STORAGE` and
+`$DATABASE_STORAGE`. Those writes live in `internal/hostfs`, an `os.Root` adapter that implements
+`homelab.SetupHost` (stat, read, mkdir, exclusive create, atomic write), declared in `internal/homelab`
+where the planner and executor consume it. `*hostfs.Host` is wired in by `cmd/orchestrator` and passed
+through `server.Deps.Host`.
+
+Why: `homelab` must stay I/O-free (D26), so the executor needs an interface, and a fake of it makes the
+whole plan and apply pipeline testable in memory, including the failure cases that are hard to
+produce on a real disk. A package of its own keeps the one place that writes outside the repo small and
+easy to audit, and keeps `os.Root` confinement as the only way to reach a storage root.
+
+**Rejected:** writing from `gitrepo` (it is the only package that touches the repo, and storage roots are a
+different trust boundary; mixing them would let a bug in repo code write to appdata and the reverse);
+writing from `server` (domain logic and I/O in the HTTP layer, untestable without a server); a generic fs
+interface (it would be wide enough to write anywhere, where `SetupHost` takes a root and a relative path
+and nothing else).
+
+---
+
+## D31 — setup.toml paths resolve only from orchestrator-injected and .global.env variables
+
+`${...}` in `setup.toml` (`path`, `file`, `to`, `from`) may reference only a variable the orchestrator
+injects (`HOMELAB_STORAGE`) or one defined in `compose/.global.env`. A variable that the deploy env
+takes from `compose/<app>/.env` is a plan problem, and nothing is written.
+
+Why: resolved paths are shown in plans, job output and the audit log. A value from `<app>/.env` may be a
+secret, so allowing it into a path would put a secret into all three. The rule also removes a
+stale-env problem: the plan's deploy env is the one from before the run, so a key that the run itself sets
+in `.env` would resolve to its old or missing value in a path. Variables from `.global.env` and the
+injected ones do not change during a run.
+
+**Rejected:** allowing any deploy-env variable and redacting after resolution (redaction cannot know which
+fragment of a path is secret, and the stale-value problem remains); resolving against the post-run env (the
+plan would no longer be computable before writing, which breaks the dry run).

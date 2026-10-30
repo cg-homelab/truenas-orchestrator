@@ -12,7 +12,8 @@ truenas-orchestrator/
 ├── internal/
 │   ├── homelab/                  # pure domain: layout, env scopes, validation, interfaces. No I/O
 │   ├── compose/                  # parse compose.yaml, ${VAR} per scope, render manifests. No I/O
-│   ├── gitrepo/                  # git binary via os/exec + layout walking; homelab.Repo
+│   ├── gitrepo/                  # git binary via os/exec + layout walking; homelab.Repo, EnvStore
+│   ├── hostfs/                   # os.Root adapter for setup's storage-root writes; homelab.SetupHost
 │   ├── truenas/                  # websocket JSON-RPC Client + Fake; homelab.TrueNAS
 │   ├── sqlite/                   # modernc sqlite pool, goose migrations, sqlc-generated queries
 │   └── server/                   # huma on http.ServeMux: routes, auth, job runner, embedded SPA
@@ -45,6 +46,7 @@ cmd/orchestrator  ──> every internal package, plus frontend (it constructs a
 internal/server   ──> homelab, compose, gitrepo, truenas, sqlite
 internal/compose  ──> homelab
 internal/gitrepo  ──> homelab
+internal/hostfs   ──> homelab
 internal/truenas  ──> homelab
 internal/sqlite   ──> homelab
 internal/homelab  ──> nothing in this repo
@@ -66,9 +68,11 @@ fixtures with plain unit tests, with no server, no database and no TrueNAS. Resi
 read a file from here. The boundary is enforced by a depguard rule (D26) that fails the build if this
 package imports `os`, `io/fs`, `net`, `net/http`, `database/sql` or `os/exec`.
 
-Also holds the interfaces the domain consumes — `TrueNAS`, `Repo`, `SecretStore` and `ComposeParser` —
-declared here rather than beside their implementations. `SecretStore` is the secret-storage boundary
-from D5, so an encrypted backend can replace plaintext files later without touching call sites. The
+Also holds the interfaces the domain consumes — `TrueNAS`, `Repo`, `SecretStore`, `SetupHost` and
+`ComposeParser` — declared here rather than beside their implementations. `SecretStore` is the
+secret-storage boundary from D5 and is file-shaped (`ReadEnv`/`WriteEnv` on the whole `.env`, so comments
+and key order survive); `gitrepo.EnvStore` implements it, and an encrypted backend can replace it later
+without touching call sites. `SetupHost` is the storage-root filesystem that setup writes through (D30). The
 types that `compose` produces (variable references tagged with a scope and a source line) are defined
 here too, so the checks consume them without `homelab` ever importing `compose`.
 
@@ -109,8 +113,16 @@ original is byte-identical after any customization operation.
 Clone, fetch, pull, branch, commit, diff, by running the `git` binary through `os/exec` and parsing
 porcelain v2 output (D21). Walks the layout and reads env and compose files, handing content to
 `homelab`. Enforces that real env files stay gitignored, using `git ls-files` and `git check-ignore` so
-`GIT001` has exactly git's answer. Implements `homelab.Repo`, and the plaintext-file `SecretStore` lives
+`GIT001` has exactly git's answer. Implements `homelab.Repo`, and `EnvStore`, the plaintext-file `SecretStore`, lives
 here with the rest of the on-disk code.
+
+### `internal/hostfs` — the storage roots, behind `os.Root`
+
+Implements `homelab.SetupHost`: stat, read, mkdir, exclusive create and atomic write, each confined to
+a storage root (`$APPCONFIG_STORAGE`, `$DATABASE_STORAGE`) by `os.Root`, so neither `..` nor a symlink
+carries a write out of the root. It is separate from `gitrepo` because that package is the only one that
+touches the repo and its writes must never reach the storage roots, and the reverse (D30). Imports only
+`homelab`.
 
 ### `internal/truenas` — an interface from day one
 

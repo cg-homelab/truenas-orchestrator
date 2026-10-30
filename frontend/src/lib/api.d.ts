@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/api/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List audit log entries, newest first */
+        get: operations["list-audit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/login": {
         parameters: {
             query?: never;
@@ -249,10 +266,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/stacks/{name}/env": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a stack's env file with per-key validation */
+        get: operations["get-stack-env"];
+        /**
+         * Set and remove keys of a stack's env file, creating it from example.env when absent
+         * @description Every value is checked against the stack's setup.toml [env_validators] and the placeholder rule first; a rejected value is a 422 whose errors name body.set.KEY and never echo the value. An env file git tracks (GIT001) or does not ignore is never written (409). The response is the masked env file.
+         */
+        put: operations["update-stack-env"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stacks/{name}/setup/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview the writes a setup run would make, without writing anything
+         * @description Returns 200 also when the plan cannot run: problems and decisions say why.
+         */
+        post: operations["plan-stack-setup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stacks/{name}/setup/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start a job that runs a stack's setup.toml
+         * @description Plans first. plan_digest must be the digest of the plan the user reviewed: a different fresh plan is a 409, and a plan with problems or undecided config files is a 422 listing them in errors; either way no job starts. The job re-plans from fresh state, fails if that plan's digest differs, and writes; running it twice changes nothing.
+         */
+        post: operations["run-stack-setup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AuditEntryView: {
+            /** @description What happened, e.g. env.write, secret.write, setup.run */
+            action: string;
+            /** Format: date-time */
+            at: string;
+            /** @description Key names, paths and counts; never a value */
+            details: {
+                [key: string]: string;
+            };
+            /** Format: int64 */
+            id: number;
+            /** @description The repo-relative or absolute path written */
+            target: string;
+            /** @description Who made the change, or started the job that made it */
+            user: string;
+        };
+        AuditList: {
+            entries: components["schemas"]["AuditEntryView"][] | null;
+        };
         AuthStatus: {
             needs_setup: boolean;
         };
@@ -272,6 +369,47 @@ export interface components {
             /** Format: password */
             password: string;
             username: string;
+        };
+        EnvEntry: {
+            key: string;
+            /**
+             * Format: int64
+             * @description 1-based line in the env file
+             */
+            line: number;
+            /** @description Why the current value is rejected, never quoting it; null when it passes */
+            problem: string | null;
+            /** @description The setup.toml [env_validators] type for the key; null when none */
+            validator: string | null;
+            /** @description [REDACTED] unless reveal=true */
+            value: string;
+        };
+        EnvFileView: {
+            entries: components["schemas"]["EnvEntry"][] | null;
+            /** @description Whether compose/<name>/.env exists */
+            exists: boolean;
+            /** @description Git ignores compose/<name>/.env; writes are refused unless it does */
+            ignored: boolean;
+            /** @description Keys in example.env absent from the env file */
+            missing: components["schemas"]["EnvMissingKey"][] | null;
+            /** @description Git tracks compose/<name>/.env (GIT001): writes will be refused */
+            tracked: boolean;
+        };
+        EnvMissingKey: {
+            key: string;
+            /**
+             * Format: int64
+             * @description 1-based line in example.env
+             */
+            line: number;
+        };
+        EnvUpdate: {
+            /** @description Keys to assign, with their values */
+            set?: {
+                [key: string]: string;
+            };
+            /** @description Keys to remove */
+            unset?: string[] | null;
         };
         EnvVar: {
             key: string;
@@ -392,6 +530,23 @@ export interface components {
             created_at: string;
             username: string;
         };
+        PromptAnswer: {
+            /** @description Generate the value as the prompt declares */
+            generate?: boolean;
+            /**
+             * Format: password
+             * @description The value to write; never echoed back
+             */
+            value?: string;
+        };
+        PromptView: {
+            can_generate: boolean;
+            key: string;
+            label: string;
+            secret: boolean;
+            /** @enum {string} */
+            state: "answered" | "set" | "missing";
+        };
         RepoView: {
             /** Format: int64 */
             ahead: number;
@@ -407,6 +562,58 @@ export interface components {
             last_fetch: string | null;
             /** @description Tracking branch; empty when none is configured */
             upstream: string;
+        };
+        RequireView: {
+            ok: boolean;
+            stack: string;
+            /** @description Ready, NeedsSetup or Broken; empty when the stack does not exist */
+            status: string;
+        };
+        SetupPlanView: {
+            /** @description Paths of config files that need an overwrite decision */
+            decisions: string[] | null;
+            /** @description Whether setup.toml declares anything to run; when false everything else is empty */
+            declared: boolean;
+            /** @description Declared work a later milestone runs (e.g. provision.postgres); never run by setup */
+            deferred: string[] | null;
+            /** @description Identifies this plan's steps; pass it as plan_digest to run-stack-setup */
+            digest: string;
+            /** @description Everything that forbids running, by key name or path */
+            problems: string[] | null;
+            prompts: components["schemas"]["PromptView"][] | null;
+            requires: components["schemas"]["RequireView"][] | null;
+            /** @description No problems; a run also needs every decision made */
+            runnable: boolean;
+            steps: components["schemas"]["SetupStepView"][] | null;
+        };
+        SetupRequest: {
+            /** @description Answers for [[prompts]], by key */
+            answers?: {
+                [key: string]: components["schemas"]["PromptAnswer"];
+            };
+            /** @description Decisions for config files awaiting one, by step path: true overwrites, false keeps */
+            overwrite?: {
+                [key: string]: boolean;
+            };
+            /** @description The digest of the plan the user reviewed; run-stack-setup requires it */
+            plan_digest?: string;
+        };
+        SetupStepView: {
+            /** @enum {string} */
+            action: "create" | "keep" | "set" | "overwrite" | "unchanged" | "ask";
+            /** @description Env key of an env_key step; empty otherwise */
+            key: string;
+            /** @enum {string} */
+            kind: "env_file" | "env_key" | "dir" | "secret" | "config_file";
+            /** @description Mode of the created file or directory, e.g. 0750; empty for env keys */
+            mode: string;
+            /** @description Absolute path written */
+            path: string;
+            reason: string;
+            /** @enum {string} */
+            root_kind: "appconfig" | "database" | "app";
+            /** @description Repo-relative template of a config file or a created env file; empty otherwise */
+            source: string;
         };
         StackDetail: {
             /** @description What env_file: and environment: inject into the containers */
@@ -453,6 +660,38 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    "list-audit": {
+        parameters: {
+            query?: {
+                /** @description How many entries, newest first */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditList"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "auth-login": {
         parameters: {
             query?: never;
@@ -1038,6 +1277,248 @@ export interface operations {
             };
             /** @description Internal Server Error */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-stack-env": {
+        parameters: {
+            query?: {
+                /** @description Return values instead of [REDACTED]; the reveal is logged and audited */
+                reveal?: boolean;
+            };
+            header?: never;
+            path: {
+                /** @description App directory name under compose/ */
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnvFileView"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "update-stack-env": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App directory name under compose/ */
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnvUpdate"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnvFileView"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "plan-stack-setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App directory name under compose/ */
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetupRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SetupPlanView"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "run-stack-setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description App directory name under compose/ */
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetupRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStarted"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

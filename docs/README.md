@@ -5,8 +5,8 @@ git-backed homelab repo full of Docker Compose stacks.
 
 ## Current state and how to resume
 
-**Status:** M2 done.
-**Next up:** M3 — app setup (see [roadmap](roadmap.md)).
+**Status:** M3 done.
+**Next up:** M4 (or M6). M3 and M4 are independent; M6 needs only M3; M5 needs both ([roadmap](roadmap.md)).
 
 To pick this work up cold, read in this order:
 

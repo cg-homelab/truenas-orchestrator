@@ -63,7 +63,7 @@ func TestValidateRepoFixture(t *testing.T) {
 		codes  []C
 	}{
 		"ok-control":         {homelab.StatusReady, []C{}},
-		"authelia":           {homelab.StatusNeedsSetup, []C{homelab.ENV004, homelab.PATH002, homelab.SETUP001}},
+		"authelia":           {homelab.StatusNeedsSetup, []C{homelab.ENV004, homelab.PATH002, homelab.SETUP001, homelab.SETUP003}},
 		"bad-yaml":           {homelab.StatusBroken, []C{homelab.COMPOSE002}},
 		"broken-networks":    {homelab.StatusBroken, []C{homelab.NET001, homelab.NET002, homelab.NET003}},
 		"broken-paths":       {homelab.StatusBroken, []C{homelab.PATH003}},

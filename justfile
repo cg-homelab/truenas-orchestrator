@@ -90,4 +90,6 @@ _frontend-build:
 
 [private]
 _dev-homelab:
-    if [ ! -d dist/dev-homelab/.git ]; then bash scripts/init-fixture-repo.sh dist/dev-homelab; fi
+    # The fixture's storage roots are /mnt/... paths that do not exist on a dev machine, so after
+    # materialising the repo point them at dist/dev-storage (compose/.global.env is gitignored).
+    if [ ! -d dist/dev-homelab/.git ]; then bash scripts/init-fixture-repo.sh dist/dev-homelab && bash scripts/dev-storage.sh dist/dev-homelab dist/dev-storage; fi

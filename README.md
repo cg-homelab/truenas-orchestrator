@@ -65,6 +65,18 @@ Run the frontend locally against the backend running on the TrueNAS server.
 
 Prerequisites: [just](https://github.com/casey/just), Go 1.27 and Node 22+. Run `just setup && just dev` to install the pinned tools and start the backend and frontend dev server against the fixture repo. The Go binary embeds the built SPA from `frontend/build/`, so `go build ./...` needs the SPA built once on a fresh clone; `just setup` does that.
 
+`orchestrator serve` is configured through environment variables (`just dev` sets them for local use):
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `ORCH_DB_PATH` | required | SQLite database file |
+| `HOMELAB_STORAGE` | required | Homelab repo checkout; also the injected `HOMELAB_STORAGE` value |
+| `ORCH_LISTEN` | `:8080` | Listen address |
+| `ORCH_SECURE_COOKIES` | `true` | `Secure` flag on the session cookie; `false` only for plain-HTTP dev |
+| `ORCH_SESSION_IDLE` | `24h` | Session ends after this long without a request |
+| `ORCH_SESSION_LIFETIME` | `168h` | Session ends this long after login |
+| `ORCH_CHECK_HOST_PATHS` | `true` | Enable PATH001 (host paths must exist on this machine) |
+
 ## Documentation
 
 | Document | What it is |

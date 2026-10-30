@@ -5,8 +5,8 @@ git-backed homelab repo full of Docker Compose stacks.
 
 ## Current state and how to resume
 
-**Status:** M1 done.
-**Next up:** M2 — validator server, auth, UI (see [roadmap](roadmap.md)).
+**Status:** M2 done.
+**Next up:** M3 — app setup (see [roadmap](roadmap.md)).
 
 To pick this work up cold, read in this order:
 

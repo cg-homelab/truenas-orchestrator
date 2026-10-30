@@ -3,7 +3,7 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 gobin := `go env GOPATH` + "/bin"
 export PATH := gobin + ":" + env("PATH")
 
-dev_env := "ORCH_LISTEN=:8080 ORCH_DB_PATH=dist/dev.db HOMELAB_STORAGE=fixtures/homelab-repo ORCH_SECURE_COOKIES=false"
+dev_env := "ORCH_LISTEN=:8080 ORCH_DB_PATH=dist/dev.db HOMELAB_STORAGE=dist/dev-homelab ORCH_CHECK_HOST_PATHS=false ORCH_SECURE_COOKIES=false"
 
 # List recipes.
 default:
@@ -40,7 +40,7 @@ test: _frontend-build
     cd frontend && npm test --if-present
 
 # Run backend and frontend dev server together.
-dev: _frontend-build
+dev: _frontend-build _dev-homelab
     #!/usr/bin/env bash
     set -euo pipefail
     mkdir -p dist
@@ -52,7 +52,7 @@ dev: _frontend-build
     wait
 
 # Run the backend only, against the fixture repo.
-dev-api:
+dev-api: _dev-homelab
     mkdir -p dist
     {{dev_env}} go run ./cmd/orchestrator serve
 
@@ -87,3 +87,7 @@ clean:
 [private]
 _frontend-build:
     cd frontend && npm run build
+
+[private]
+_dev-homelab:
+    if [ ! -d dist/dev-homelab/.git ]; then bash scripts/init-fixture-repo.sh dist/dev-homelab; fi

@@ -93,6 +93,11 @@ func TestRunServeConfigErrors(t *testing.T) {
 		{"missing database path", []string{"HOMELAB_STORAGE=/x"}, "ORCH_DB_PATH"},
 		{"missing homelab storage", []string{dbPath}, "HOMELAB_STORAGE"},
 		{"bad secure cookies", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_SECURE_COOKIES=maybe"}, "SecureCookies"},
+		{"bad session idle", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_SESSION_IDLE=soon"}, "SessionIdle"},
+		{"bad session lifetime", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_SESSION_LIFETIME=1week"}, "SessionLifetime"},
+		{"zero session idle", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_SESSION_IDLE=0s"}, "ORCH_SESSION_IDLE"},
+		{"negative session lifetime", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_SESSION_LIFETIME=-1h"}, "ORCH_SESSION_LIFETIME"},
+		{"bad check host paths", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_CHECK_HOST_PATHS=sometimes"}, "CheckHostPaths"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -149,17 +154,23 @@ func TestRunServeStartsAndStops(t *testing.T) {
 		t.Fatal("run(serve) did not log its listen address within 10s")
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://"+addr+"/api/health", http.NoBody)
-	if err != nil {
-		t.Fatalf("new request: %v", err)
-	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		t.Fatalf("GET /api/health: %v", err)
-	}
-	_ = resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("GET /api/health status = %d, want 200", resp.StatusCode)
+	for path, want := range map[string]int{
+		"/api/health":      http.StatusOK,
+		"/api/auth/status": http.StatusOK,
+		"/api/stacks":      http.StatusUnauthorized,
+	} {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://"+addr+path, http.NoBody)
+		if err != nil {
+			t.Fatalf("new request: %v", err)
+		}
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatalf("GET %s: %v", path, err)
+		}
+		_ = resp.Body.Close()
+		if resp.StatusCode != want {
+			t.Errorf("GET %s status = %d, want %d", path, resp.StatusCode, want)
+		}
 	}
 
 	cancel()

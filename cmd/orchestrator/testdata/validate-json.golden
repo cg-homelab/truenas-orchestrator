@@ -86,6 +86,14 @@
           "line": 0,
           "message": "legacy setup.sh is present; it is never executed",
           "fix": "Port it to setup.toml (docs/architecture/setup-toml.md)"
+        },
+        {
+          "code": "SETUP003",
+          "severity": "warning",
+          "file": "compose/authelia/setup.toml",
+          "line": 3,
+          "message": "setup.toml requires db-postgres, which is Broken",
+          "fix": "Set up the required stack first"
         }
       ],
       "interpolation": {

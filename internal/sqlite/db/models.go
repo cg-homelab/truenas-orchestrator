@@ -17,6 +17,15 @@ type ApiToken struct {
 	LastUsedAt sql.NullInt64
 }
 
+type AuditLog struct {
+	ID          int64
+	At          int64
+	User        string
+	Action      string
+	Target      string
+	DetailsJson string
+}
+
 type Job struct {
 	ID         string
 	Kind       string

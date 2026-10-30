@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -34,6 +35,12 @@ type Deps struct {
 	Store *sqlite.Store
 	// Repo is the homelab repo the stacks and repo endpoints validate and fetch.
 	Repo Repo
+	// Secrets reads and writes each app's env file for the env editor and setup runs. Nil makes
+	// the env and setup endpoints fail with a 500, like a nil Repo.
+	Secrets homelab.SecretStore
+	// Host performs setup's writes under the storage roots. Nil makes the setup endpoints fail
+	// with a 500.
+	Host homelab.SetupHost
 	// Validate configures homelab.ValidateRepo for every report the server builds.
 	Validate homelab.Options
 	// SecureCookies sets the Secure flag on the session cookie. TLS terminates at the proxy, so
@@ -72,6 +79,9 @@ type services struct {
 	hasher  *passwordHasher
 	reports *reportCache
 	jobs    *jobRunner
+	audit   *auditor
+	// envLocks serialises writes to each app's env file across requests and setup jobs.
+	envLocks *envLocks
 }
 
 // newServices fills defaults into deps and builds the shared state. It must not call deps.
@@ -104,10 +114,12 @@ func newServices(deps Deps) *services {
 			store: deps.Store, logger: logger, now: now,
 			idle: idle, lifetime: lifetime, secure: deps.SecureCookies,
 		},
-		limiter: newLoginLimiter(now),
-		hasher:  newPasswordHasher(hashSlots),
-		reports: reports,
-		jobs:    newJobRunner(deps.Store, logger, now, reports.invalidate),
+		limiter:  newLoginLimiter(now),
+		hasher:   newPasswordHasher(hashSlots),
+		reports:  reports,
+		jobs:     newJobRunner(deps.Store, logger, now, reports.invalidate),
+		audit:    &auditor{store: deps.Store, logger: logger, now: now},
+		envLocks: newEnvLocks(),
 	}
 }
 
@@ -144,16 +156,28 @@ type Server struct {
 
 // dropErrorValues removes the offending input value that huma puts in each problem+json error
 // detail. A request body that fails validation may carry a password or token, and no secret
-// may appear in a response.
+// may appear in a response. A JSON syntax error message quotes a character of the body
+// ("invalid character 'h' ..."), so it is replaced with a fixed one.
 func dropErrorValues(_ huma.Context, _ string, v any) (any, error) {
 	if m, ok := v.(*huma.ErrorModel); ok {
 		for _, d := range m.Errors {
-			if d != nil {
-				d.Value = nil
+			if d == nil {
+				continue
+			}
+			d.Value = nil
+			if d.Location == "body" && (m.Status == http.StatusBadRequest || isJSONSyntaxMessage(d.Message)) {
+				d.Message = msgInvalidJSON
 			}
 		}
 	}
 	return v, nil
+}
+
+// msgInvalidJSON replaces encoding/json syntax errors, which can quote the body.
+const msgInvalidJSON = "invalid JSON"
+
+func isJSONSyntaxMessage(msg string) bool {
+	return strings.HasPrefix(msg, "invalid character") || strings.HasPrefix(msg, "unexpected end of JSON input")
 }
 
 // NewServer returns the server: every API operation, the SPA, and the stdlib middleware around

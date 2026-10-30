@@ -19,6 +19,7 @@ import (
 
 	"github.com/cg-homelab/truenas-orchestrator/internal/gitrepo"
 	"github.com/cg-homelab/truenas-orchestrator/internal/homelab"
+	"github.com/cg-homelab/truenas-orchestrator/internal/hostfs"
 	"github.com/cg-homelab/truenas-orchestrator/internal/sqlite"
 )
 
@@ -128,6 +129,8 @@ type testEnv struct {
 	clock *fakeClock
 	logs  *syncBuffer
 	repo  *fetchRepo
+	// stopJobs stops the job runner, as a shutdown does, and waits for it.
+	stopJobs func()
 }
 
 type envOptions struct {
@@ -137,6 +140,14 @@ type envOptions struct {
 	fetch         func(ctx context.Context, report func(string)) error
 	// beforeRun runs against the store before the job runner starts.
 	beforeRun func(t *testing.T, store *sqlite.Store)
+	// prepareRepo changes the materialised fixture repo, rooted at root, before the server starts.
+	prepareRepo func(t *testing.T, root string)
+	// hostPathExists enables PATH001 in the server's validation.
+	hostPathExists func(path string) (bool, error)
+	// wrapSecrets wraps the env store the server uses.
+	wrapSecrets func(homelab.SecretStore) homelab.SecretStore
+	// noSecrets and noHost leave Deps.Secrets and Deps.Host nil.
+	noSecrets, noHost bool
 }
 
 func newEnv(t *testing.T, opts envOptions) *testEnv {
@@ -152,17 +163,34 @@ func newEnv(t *testing.T, opts envOptions) *testEnv {
 	if opts.beforeRun != nil {
 		opts.beforeRun(t, store)
 	}
+	gr := fixtureRepo(t)
+	if opts.prepareRepo != nil {
+		opts.prepareRepo(t, gr.Root())
+	}
 	env := &testEnv{
 		store: store,
 		clock: newFakeClock(),
 		logs:  &syncBuffer{},
-		repo:  &fetchRepo{Repo: fixtureRepo(t), fetch: opts.fetch},
+		repo:  &fetchRepo{Repo: gr, fetch: opts.fetch},
+	}
+	var secrets homelab.SecretStore = gitrepo.NewEnvStore(gr)
+	if opts.wrapSecrets != nil {
+		secrets = opts.wrapSecrets(secrets)
+	}
+	if opts.noSecrets {
+		secrets = nil
+	}
+	var host homelab.SetupHost = hostfs.New()
+	if opts.noHost {
+		host = nil
 	}
 	s := NewServer(Deps{
 		Logger:          slog.New(slog.NewJSONHandler(env.logs, &slog.HandlerOptions{Level: slog.LevelDebug})),
 		Store:           store,
 		Repo:            env.repo,
-		Validate:        homelab.Options{HomelabStorage: testStorage},
+		Secrets:         secrets,
+		Host:            host,
+		Validate:        homelab.Options{HomelabStorage: testStorage, HostPathExists: opts.hostPathExists},
 		SecureCookies:   opts.secureCookies,
 		SessionIdle:     opts.idle,
 		SessionLifetime: opts.lifetime,
@@ -174,10 +202,14 @@ func newEnv(t *testing.T, opts envOptions) *testEnv {
 		defer close(done)
 		_ = s.Run(ctx)
 	}()
-	t.Cleanup(func() {
-		cancel()
-		<-done
-	})
+	var stop sync.Once
+	env.stopJobs = func() {
+		stop.Do(func() {
+			cancel()
+			<-done
+		})
+	}
+	t.Cleanup(env.stopJobs)
 	env.srv = httptest.NewServer(s)
 	t.Cleanup(env.srv.Close)
 	return env
@@ -200,11 +232,16 @@ type response struct {
 	cookie *http.Cookie // the orch_session cookie set, if any
 }
 
+// rawBody is a request body sent as is, for malformed JSON.
+type rawBody string
+
 // do sends a request with an optional JSON body and returns the response.
 func (e *testEnv) do(t *testing.T, method, path string, body any, creds ...cred) response {
 	t.Helper()
 	var rd io.Reader = http.NoBody
-	if body != nil {
+	if raw, ok := body.(rawBody); ok {
+		rd = strings.NewReader(string(raw))
+	} else if body != nil {
 		b, err := json.Marshal(body)
 		if err != nil {
 			t.Fatalf("marshal body: %v", err)

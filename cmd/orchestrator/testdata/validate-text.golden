@@ -8,7 +8,7 @@ repo: branch main  ahead 0  behind 0  clean
   COMPOSE006  error  compose/Bad_Name  app directory name "Bad_Name" does not match [a-z0-9][a-z0-9-]*; the stack is not validated
     fix: Rename the directory
 
-== authelia  [NeedsSetup]  (7 findings)
+== authelia  [NeedsSetup]  (8 findings)
   PATH002  warning  compose/authelia/compose.yaml:3  host path "/mnt/fast/appdata/authelia/secrets/JWT_SECRET" is a literal path under a storage root; use the storage variable
     fix: Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/...
   PATH002  warning  compose/authelia/compose.yaml:5  host path "/mnt/fast/appdata/authelia/secrets/SESSION_SECRET" is a literal path under a storage root; use the storage variable
@@ -23,6 +23,8 @@ repo: branch main  ahead 0  behind 0  clean
     fix: Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/...
   SETUP001  warning  compose/authelia/setup.sh  legacy setup.sh is present; it is never executed
     fix: Port it to setup.toml (docs/architecture/setup-toml.md)
+  SETUP003  warning  compose/authelia/setup.toml:3  setup.toml requires db-postgres, which is Broken
+    fix: Set up the required stack first
 
 == bad-yaml  [Broken]  (1 findings)
   COMPOSE002  error  compose/bad-yaml/compose.yaml:2  not parseable YAML: did not find expected key
@@ -114,4 +116,4 @@ repo: branch main  ahead 0  behind 0  clean
 
 == ok-control  [Ready]  (0 findings)
 
-19 errors, 19 warnings, 1 info
+19 errors, 20 warnings, 1 info

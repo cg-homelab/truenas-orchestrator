@@ -1,4 +1,5 @@
 import { api, errorMessage } from './api';
+import { followJob } from './jobs';
 import type { components } from './api.d';
 
 export type RepoView = components['schemas']['RepoView'];
@@ -49,32 +50,17 @@ class Repo {
 	}
 
 	private stream(id: string) {
-		const es = new EventSource(`/api/jobs/${encodeURIComponent(id)}/events`);
-		es.addEventListener('log', (ev) => {
-			try {
-				this.log.push(JSON.parse((ev as MessageEvent).data).line);
-			} catch {
-				// ignore malformed event
-			}
-		});
-		es.addEventListener('done', async (ev) => {
-			es.close();
-			try {
-				const d = JSON.parse((ev as MessageEvent).data);
-				if (d.state === 'failed') this.fetchError = d.error || 'fetch failed';
-			} catch {
-				// ignore
-			}
-			await this.refresh();
-			this.version++;
-			this.running = false;
-		});
-		es.onerror = () => {
-			if (es.readyState === EventSource.CLOSED) {
-				this.fetchError = 'Lost connection to the job stream.';
+		followJob(
+			id,
+			(line) => this.log.push(line),
+			async (done) => {
+				if (done.state === 'failed') this.fetchError = done.error || 'fetch failed';
+				await this.refresh();
+				this.version++;
 				this.running = false;
-			}
-		};
+			},
+			() => (this.log = [])
+		);
 	}
 }
 

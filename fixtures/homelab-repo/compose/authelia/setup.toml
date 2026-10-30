@@ -1,0 +1,62 @@
+[app]
+name = "authelia"
+requires = ["db-postgres"]          # stacks that must be Ready before setup can run
+
+[[dirs]]
+path = "${APPCONFIG_STORAGE}/authelia/config"
+mode = "0750"
+
+[[dirs]]
+path = "${APPCONFIG_STORAGE}/authelia/secrets"
+mode = "0700"
+
+[[secrets]]
+file = "${APPCONFIG_STORAGE}/authelia/secrets/JWT_SECRET"
+generate = { bytes = 32, encoding = "base64" }
+mode = "0600"
+
+[[secrets]]
+file = "${APPCONFIG_STORAGE}/authelia/secrets/SESSION_SECRET"
+generate = { bytes = 64, encoding = "base64" }
+mode = "0600"
+
+[[secrets]]
+file = "${APPCONFIG_STORAGE}/authelia/secrets/STORAGE_ENCRYPTION_KEY"
+generate = { bytes = 64, encoding = "base64" }
+mode = "0600"
+
+[[secrets]]
+file = "${APPCONFIG_STORAGE}/authelia/secrets/STORAGE_PASSWORD"
+value_from = "AUTHELIA_STORAGE_POSTGRES_PASSWORD"   # same value the DB user is created with
+mode = "0600"
+
+[[config_files]]
+from = "config/configuration.yml"                    # path within the app dir, committed
+to   = "${APPCONFIG_STORAGE}/authelia/config/configuration.yml"
+on_exists = "keep"                                   # keep | overwrite | prompt
+
+[[config_files]]
+to = "${APPCONFIG_STORAGE}/authelia/config/users.yml"
+create_empty = true
+on_exists = "keep"
+
+[[config_files]]
+to = "${APPCONFIG_STORAGE}/authelia/config/notifications.yml"
+create_empty = true
+on_exists = "keep"
+
+[[prompts]]
+key = "AUTHELIA_STORAGE_POSTGRES_PASSWORD"
+label = "Authelia database password"
+secret = true
+generate = { bytes = 24, encoding = "base64" }       # offer a generated default
+
+[[provision.postgres]]                               # M5+, not implemented in M3
+stack = "db-postgres"
+database = "authelia"
+user = "authelia"
+password_from = "AUTHELIA_STORAGE_POSTGRES_PASSWORD"
+
+[env_validators]
+SERVICE_NAME = { type = "identifier", equals_app_name = true }
+HTTP_PORT = { type = "port" }

@@ -5,7 +5,7 @@ Opinionated homelab orchestration tool for TrueNAS.
 It runs as a TrueNAS SCALE app and manages a git-backed homelab repository full of Docker Compose
 stacks — validating them, setting them up, and deploying them.
 
-> **Status: planning.** No code yet. Start at **[docs/README.md](docs/README.md)**, then
+> **Status:** M0–M3 done (validator, server and UI, app setup); next is M4. Start at **[docs/README.md](docs/README.md)**, then
 > [docs/roadmap.md](docs/roadmap.md). Backend is Go (decided 2026-10-30, see docs/decisions.md D15).
 
 ## The problem

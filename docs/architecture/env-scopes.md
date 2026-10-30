@@ -87,7 +87,7 @@ everything.
 
 ## Implementation notes
 
-- `compose-model` extracts variable references tagged with the scope of the position they appear in.
+- `internal/compose` extracts variable references tagged with the scope of the position they appear in.
   A single variable can legitimately appear in both scopes.
 - Preserve the source line for every reference. Findings must point at a line.
 - Support the full Compose interpolation syntax, not just `${VAR}`: `${VAR:-default}`, `${VAR-default}`,

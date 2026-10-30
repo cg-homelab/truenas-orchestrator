@@ -1,6 +1,6 @@
-# M4 — Deploy
+# M5 — Deploy
 
-**Status:** not started · **Depends on:** M2, M3 · **Issue:** _(unset)_
+**Status:** not started · **Depends on:** M3, M4 · **Issue:** _(unset)_
 
 ## Goal
 
@@ -13,8 +13,8 @@ file. `compose.yaml` is never rewritten.
 
 ## Out of scope
 
-- The catalog (M5)
-- Update checking, schedules and rollback (M6)
+- The catalog (M6)
+- Update checking, schedules and rollback (M7)
 
 ## Tasks
 

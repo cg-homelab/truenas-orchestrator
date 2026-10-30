@@ -59,7 +59,7 @@ label = "Authelia database password"
 secret = true
 generate = { bytes = 24, encoding = "base64" }       # offer a generated default
 
-[[provision.postgres]]                               # M4+, not implemented in M2
+[[provision.postgres]]                               # M5+, not implemented in M3
 stack = "db-postgres"
 database = "authelia"
 user = "authelia"
@@ -70,14 +70,14 @@ password_from = "AUTHELIA_STORAGE_POSTGRES_PASSWORD"
 
 | Primitive | Milestone | What it does |
 |---|---|---|
-| `app.name` | M2 | Must equal the app directory name |
-| `app.requires` | M2 | Other stacks that must validate as Ready before setup runs |
-| `dirs` | M2 | Create a directory with an explicit mode. Idempotent |
-| `secrets` | M2 | Create a secret file, either generated or taken from a prompted value. Never overwritten once present |
-| `config_files` | M2 | Copy a committed template into `$APPCONFIG_STORAGE`, or create it empty |
-| `prompts` | M2 | Ask the user for a value, write it to `<app>/.env`. May offer a generated default |
-| `env_validators` | M2 | Per-key value constraints used by validator check `ENV007` |
-| `provision.postgres` | M4 | Create a database and role in a running `db-postgres` stack |
+| `app.name` | M3 | Must equal the app directory name |
+| `app.requires` | M3 | Other stacks that must validate as Ready before setup runs |
+| `dirs` | M3 | Create a directory with an explicit mode. Idempotent |
+| `secrets` | M3 | Create a secret file, either generated or taken from a prompted value. Never overwritten once present |
+| `config_files` | M3 | Copy a committed template into `$APPCONFIG_STORAGE`, or create it empty |
+| `prompts` | M3 | Ask the user for a value, write it to `<app>/.env`. May offer a generated default |
+| `env_validators` | M3 | Per-key value constraints used by validator check `ENV007` |
+| `provision.postgres` | M5 | Create a database and role in a running `db-postgres` stack |
 
 Nothing outside this table is valid. An unknown key is a hard parse error, not a warning — silently
 ignoring setup steps is how apps end up half-configured.

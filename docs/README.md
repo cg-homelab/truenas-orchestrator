@@ -5,7 +5,7 @@ git-backed homelab repo full of Docker Compose stacks.
 
 ## Current state and how to resume
 
-**Status:** planning complete, no code written.
+**Status:** planning complete, rewritten for Go on 2026-10-30. No code written.
 **Next up:** M0 — skeleton (see [roadmap](roadmap.md)).
 
 To pick this work up cold, read in this order:
@@ -16,7 +16,8 @@ To pick this work up cold, read in this order:
    Notes section with decisions made during implementation.
 3. [decisions.md](decisions.md) — every settled architectural decision and why. Do not relitigate these
    without saying so explicitly.
-4. [architecture/env-scopes.md](architecture/env-scopes.md) — the single most important concept in this
+4. [architecture/go-guidelines.md](architecture/go-guidelines.md) — the normative Go guide. Read before writing any Go. The root `CLAUDE.md` holds the hard rules.
+5. [architecture/env-scopes.md](architecture/env-scopes.md) — the single most important concept in this
    project. Read it before touching anything that resolves environment variables.
 
 When you finish a chunk of work: tick the task boxes, append to that milestone's Notes section, and
@@ -32,7 +33,9 @@ update the status column in `roadmap.md`. That is the handoff surface.
 | [architecture/env-scopes.md](architecture/env-scopes.md) | Compose interpolation scope vs container scope; the `HOMELAB_STORAGE` injection rule |
 | [architecture/repo-layout-contract.md](architecture/repo-layout-contract.md) | Normative layout of a homelab repo — what the validator enforces |
 | [architecture/setup-toml.md](architecture/setup-toml.md) | `setup.toml` schema and the registry of setup primitives |
-| [architecture/components.md](architecture/components.md) | Crate and frontend layout, and why the boundaries sit where they do |
+| [architecture/components.md](architecture/components.md) | Package and frontend layout, and why the boundaries sit where they do |
+| [architecture/go-guidelines.md](architecture/go-guidelines.md) | Normative Go guidelines: layout, Rust-to-Go pitfalls, HTTP/data/testing patterns, lint config |
+| [../CLAUDE.md](../CLAUDE.md) | Hard rules for humans and coding agents; where things go |
 | [on-server-file-structure.md](on-server-file-structure.md) | On-server paths and storage environment variables |
 | [milestones/](milestones/) | One issue-ready file per milestone |
 
@@ -43,5 +46,5 @@ catches: environment variables referenced but never defined, variables defined i
 ever be substituted, hardcoded absolute paths that should be variables, and per-app `setup.sh` scripts
 that silently half-succeed.
 
-Milestone 1 is a read-only validator that catches exactly that class of error. Later milestones grow it
+Milestone 1 is a read-only validator CLI that catches exactly that class of error; milestone 2 puts it behind a web UI with auth. Later milestones grow it
 into app setup, TrueNAS dataset and permission management, deploy, and an app catalog.

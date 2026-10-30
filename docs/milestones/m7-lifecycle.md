@@ -1,6 +1,6 @@
-# M6 — Lifecycle
+# M7 — Lifecycle
 
-**Status:** not started · **Depends on:** M4 · **Issue:** _(unset)_
+**Status:** not started · **Depends on:** M5 · **Issue:** _(unset)_
 
 ## Goal
 

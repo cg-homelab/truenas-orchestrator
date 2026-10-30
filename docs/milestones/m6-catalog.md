@@ -1,6 +1,6 @@
-# M5 — App catalog
+# M6 — App catalog
 
-**Status:** not started · **Depends on:** M2 · **Issue:** _(unset)_
+**Status:** not started · **Depends on:** M3 · **Issue:** _(unset)_
 
 ## Goal
 

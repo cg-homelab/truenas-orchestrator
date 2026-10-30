@@ -1,6 +1,6 @@
-# M3 — TrueNAS client and bootstrap
+# M4 — TrueNAS client and bootstrap
 
-**Status:** not started · **Depends on:** M1 · **Issue:** _(unset)_
+**Status:** not started · **Depends on:** M2 · **Issue:** _(unset)_
 
 ## Goal
 
@@ -13,14 +13,14 @@ smoke recipe.
 
 ## Out of scope
 
-- Deploying apps (M4)
+- Deploying apps (M5)
 - The orchestrator managing its own TrueNAS app entry — it never does (see [decisions.md](../decisions.md) D11)
 
 ## Tasks
 
-- [ ] `TrueNasApi` trait covering: dataset create/list, user and group create/list, ACL get/set, docker network create/list, app list, system version
+- [ ] `homelab.TrueNAS` interface covering: dataset create/list, user and group create/list, ACL get/set, docker network create/list, app list, system version
 - [ ] Websocket JSON-RPC implementation against the TrueNAS middleware, with API-key auth
-- [ ] `FakeTrueNas` backed by `fixtures/truenas/` recorded responses, including failure cases
+- [ ] `truenas.Fake` backed by `fixtures/truenas/` recorded responses, including failure cases
 - [ ] Middleware API version detection with a clear error when the version is outside the supported range
 - [ ] Dataset creation with the properties the homelab needs
 - [ ] User and group creation, including the git user
@@ -30,7 +30,7 @@ smoke recipe.
 - [ ] Environment-readiness check: one function reporting what exists, what is missing, and what is wrong
 - [ ] Dry-run preview and explicit confirm on every destructive or creating operation
 - [ ] Audit log entries for every TrueNAS mutation
-- [ ] API key storage through the secret-storage trait; never logged, never returned by the API
+- [ ] API key storage through the secret-storage interface; never logged, never returned by the API
 - [ ] `deploy/bootstrap.sh` — first run end to end
 - [ ] `docs/` hand-install guide covering the identical steps
 - [ ] `just smoke HOST` — read-only calls against a real TrueNAS to verify API compatibility
@@ -38,7 +38,7 @@ smoke recipe.
 
 ## Acceptance criteria
 
-1. Every client test passes against `FakeTrueNas` with no network.
+1. Every client test passes against `truenas.Fake` with no network.
 2. `just smoke <host>` against the real TrueNAS confirms the client matches the live middleware API, and fails loudly with an actionable message if it does not.
 3. `bootstrap.sh` and the hand-install guide produce end states that both pass the environment-readiness check, with no differences.
 4. Re-running bootstrap on an already-configured server changes nothing.

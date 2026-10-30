@@ -1,6 +1,6 @@
-# M2 — App setup
+# M3 — App setup
 
-**Status:** not started · **Depends on:** M1 · **Issue:** _(unset)_
+**Status:** not started · **Depends on:** M2 · **Issue:** _(unset)_
 
 ## Goal
 
@@ -12,10 +12,10 @@ Every run previews its plan before writing anything, and running it twice change
 
 ## Out of scope
 
-- `provision.postgres` and anything that touches another running stack (M4)
-- Any TrueNAS API call — no datasets, no ACLs (M3)
-- Deploying anything (M4)
-- Adding apps from the catalog (M5)
+- `provision.postgres` and anything that touches another running stack (M5)
+- Any TrueNAS API call — no datasets, no ACLs (M4)
+- Deploying anything (M5)
+- Adding apps from the catalog (M6)
 
 ## Tasks
 
@@ -31,7 +31,7 @@ Every run previews its plan before writing anything, and running it twice change
 - [ ] Copy `example.env` → `.env` preserving comments and key order
 - [ ] Env editor API: read (masked), write, per-key validation using `[env_validators]`
 - [ ] Verify `.env` is gitignored before writing to it; refuse and emit `GIT001` if not
-- [ ] Secret-storage trait is the only path to secret reads and writes — no direct file I/O at call sites
+- [ ] Secret-storage interface is the only path to secret reads and writes — no direct file I/O at call sites
 - [ ] Audit log entries for every write; secret values recorded as written, never captured
 - [ ] Setup runs as a job with SSE progress
 - [ ] Frontend: `.env` editor with per-key validation, masked values, and reveal

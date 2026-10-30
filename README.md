@@ -6,7 +6,7 @@ It runs as a TrueNAS SCALE app and manages a git-backed homelab repository full 
 stacks — validating them, setting them up, and deploying them.
 
 > **Status: planning.** No code yet. Start at **[docs/README.md](docs/README.md)**, then
-> [docs/roadmap.md](docs/roadmap.md).
+> [docs/roadmap.md](docs/roadmap.md). Backend is Go (decided 2026-10-30, see docs/decisions.md D15).
 
 ## The problem
 
@@ -69,6 +69,7 @@ Run the frontend locally against the backend running on the TrueNAS server.
 | [docs/roadmap.md](docs/roadmap.md) | Milestones with live status |
 | [docs/decisions.md](docs/decisions.md) | Settled architectural decisions and why |
 | [docs/validator-checks.md](docs/validator-checks.md) | Validator finding codes |
+| [docs/architecture/go-guidelines.md](docs/architecture/go-guidelines.md) | Normative Go guidelines |
 | [docs/architecture/](docs/architecture/) | Env scopes, repo layout contract, `setup.toml`, components |
 
 ## License

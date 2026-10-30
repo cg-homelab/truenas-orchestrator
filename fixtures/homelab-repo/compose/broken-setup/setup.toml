@@ -1,5 +1,6 @@
 [app]
-name = "broken-setup"
+# SETUP006: does not equal the app directory name
+name = "setup-broken"
 # SETUP003: db-postgres is Broken (COMPOSE001), so this requirement cannot be satisfied
 requires = ["db-postgres"]
 

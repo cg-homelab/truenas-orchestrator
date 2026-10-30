@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"github.com/cg-homelab/truenas-orchestrator/internal/homelab"
 )
@@ -26,7 +27,17 @@ func TestParseStatus(t *testing.T) {
 			name: "tracking branch ahead and behind with changes",
 			out: "# branch.oid 1234567890abcdef\n# branch.head main\n# branch.upstream origin/main\n" +
 				"# branch.ab +2 -3\n1 .M N... 100644 100644 100644 abc abc compose.yaml\n? new.txt\n",
-			want: homelab.RepoStatus{Branch: "main", Upstream: "origin/main", Ahead: 2, Behind: 3},
+			want: homelab.RepoStatus{Branch: "main", Upstream: "origin/main", Ahead: 2, Behind: 3, Dirty: true},
+		},
+		{
+			name: "only untracked is not dirty",
+			out:  "# branch.head main\n? new.txt\n! ignored.txt\n",
+			want: homelab.RepoStatus{Branch: "main"},
+		},
+		{
+			name: "rename and unmerged entries are dirty",
+			out:  "# branch.head main\n2 R. N... 100644 100644 100644 a b R100 new\told\n",
+			want: homelab.RepoStatus{Branch: "main", Dirty: true},
 		},
 		{
 			name: "detached head",
@@ -102,7 +113,10 @@ func TestStatusAgainstRealRepo(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Status() error = %v", err)
 			}
-			if diff := cmp.Diff(tt.want, got); diff != "" {
+			if tt.dir == clone && got.LastFetch.IsZero() {
+				t.Error("Status().LastFetch is zero after a fetch")
+			}
+			if diff := cmp.Diff(tt.want, got, cmpopts.IgnoreFields(homelab.RepoStatus{}, "LastFetch")); diff != "" {
 				t.Errorf("Status() mismatch (-want +got):\n%s", diff)
 			}
 		})

@@ -80,7 +80,7 @@ type ComposeParser interface {
 	Parse(path string, src []byte) (ComposeFile, error)
 }
 
-func ValidateRepo(ctx context.Context, repo Repo, parse ComposeParser) (Report, error)
+func ValidateRepo(ctx context.Context, repo Repo, parse ComposeParser, opts Options) (Report, error)
 ```
 
 `internal/compose` implements `ComposeParser`; `cmd/orchestrator validate` and `internal/server` both

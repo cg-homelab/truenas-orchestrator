@@ -65,7 +65,7 @@ type ComposeParser interface {
 	Parse(path string, src []byte) (ComposeFile, error)
 }
 
-func ValidateRepo(ctx context.Context, repo Repo, parse ComposeParser) (Report, error)
+func ValidateRepo(ctx context.Context, repo Repo, parse ComposeParser, opts Options) (Report, error)
 
 // internal/compose: *compose.Parser satisfies it
 var _ homelab.ComposeParser = (*Parser)(nil)
@@ -569,9 +569,9 @@ func (s *Store) withTx(ctx context.Context, fn func(q *Queries) error) error {
 - **Compose structure (`COMPOSE001`):** `compose-go/v2/schema.Validate` on the raw YAML decoded into a
   `map[string]any`. **Never the compose-go loader:** with interpolation disabled it fails on `${VAR}` in
   typed fields such as `ports` and `mem_limit`, and with its defaults it stats `env_file:` paths on disk.
-- **Substitution grammar:** `compose-go/v2/template` (`${VAR:-d}`, `${VAR:?e}`, `$VAR`, `$$`). Call
-  `template.SubstituteWithOptions(…, template.WithoutLogging)`; the plain `Substitute` writes a warning
-  to the global logger for every unset variable.
+- **Substitution grammar:** our own scanner in `internal/homelab/interpolate.go` (`${VAR:-d}`,
+  `${VAR:?e}`, `$VAR`, `$$`), differentially tested against `compose-go/v2/template`, which is not
+  called at runtime ([D29](../decisions.md)).
 
 ---
 

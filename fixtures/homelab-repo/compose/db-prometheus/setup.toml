@@ -1,0 +1,4 @@
+# Synthetic addition to a real stack: declares the validator the real repo is expected to adopt,
+# so that METRICS_RETENTION_TIME=60 (no unit) is reported as ENV007.
+[env_validators]
+METRICS_RETENTION_TIME = { type = "duration" }

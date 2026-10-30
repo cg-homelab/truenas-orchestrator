@@ -1,0 +1,5 @@
+# COMPOSE006: the directory name does not match [a-z0-9][a-z0-9-]*, so the stack is not
+# validated at all. The (otherwise unremarkable) content below is never read.
+services:
+  bad-name:
+    image: docker.io/library/alpine:3.22

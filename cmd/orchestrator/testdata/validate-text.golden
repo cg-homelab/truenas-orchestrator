@@ -1,0 +1,117 @@
+repo: branch main  ahead 0  behind 0  clean
+
+== repo  (1 findings)
+  GIT001  error  compose/env-drift/.env  compose/env-drift/.env is tracked by git; real env files must be gitignored
+    fix: Add the gitignore rule and `git rm --cached` the file. Treat any committed secrets as compromised and rotate them
+
+== Bad_Name  [Broken]  (1 findings)
+  COMPOSE006  error  compose/Bad_Name  app directory name "Bad_Name" does not match [a-z0-9][a-z0-9-]*; the stack is not validated
+    fix: Rename the directory
+
+== authelia  [NeedsSetup]  (7 findings)
+  PATH002  warning  compose/authelia/compose.yaml:3  host path "/mnt/fast/appdata/authelia/secrets/JWT_SECRET" is a literal path under a storage root; use the storage variable
+    fix: Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/...
+  PATH002  warning  compose/authelia/compose.yaml:5  host path "/mnt/fast/appdata/authelia/secrets/SESSION_SECRET" is a literal path under a storage root; use the storage variable
+    fix: Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/...
+  PATH002  warning  compose/authelia/compose.yaml:7  host path "/mnt/fast/appdata/authelia/secrets/STORAGE_PASSWORD" is a literal path under a storage root; use the storage variable
+    fix: Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/...
+  PATH002  warning  compose/authelia/compose.yaml:9  host path "/mnt/fast/appdata/authelia/secrets/STORAGE_ENCRYPTION_KEY" is a literal path under a storage root; use the storage variable
+    fix: Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/...
+  ENV004  warning  compose/authelia/compose.yaml:27  env_file compose/authelia/.env does not exist; create it from example.env
+    fix: Run app setup, or create the file
+  PATH002  warning  compose/authelia/compose.yaml:34  host path "/mnt/fast/appdata/authelia/config" is a literal path under a storage root; use the storage variable
+    fix: Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/...
+  SETUP001  warning  compose/authelia/setup.sh  legacy setup.sh is present; it is never executed
+    fix: Port it to setup.toml (docs/architecture/setup-toml.md)
+
+== bad-yaml  [Broken]  (1 findings)
+  COMPOSE002  error  compose/bad-yaml/compose.yaml:2  not parseable YAML: did not find expected key
+    fix: Fix the YAML syntax
+
+== broken-networks  [Broken]  (3 findings)
+  NET001  error  compose/broken-networks/compose.yaml:11  service broken-networks uses network backend, which is not one of home, proxy, isolated, databases
+    fix: Use one of home, proxy, isolated, databases, or add it to the contract deliberately
+  NET002  error  compose/broken-networks/compose.yaml:12  service broken-networks uses network databases, which the top-level networks: block does not declare
+    fix: Declare it in the top-level networks: block as external: true
+  NET003  warning  compose/broken-networks/compose.yaml:21  network home is declared without external: true
+    fix: Mark it external: true; these networks are created during bootstrap
+
+== broken-paths  [Broken]  (1 findings)
+  PATH003  error  compose/broken-paths/compose.yaml:19  host path "${APPCONFIG_STORAGE}/../../../etc" resolves outside every storage root (HOMELAB_STORAGE, APPCONFIG_STORAGE, DATABASE_STORAGE, MEDIA_STORAGE)
+    fix: Correct the path
+
+== broken-setup  [Broken]  (3 findings)
+  SETUP006  error  compose/broken-setup/setup.toml:3  [app] name does not equal the app directory name "broken-setup"
+    fix: Make them match
+  SETUP003  warning  compose/broken-setup/setup.toml:5  setup.toml requires db-postgres, which is Broken
+    fix: Set up the required stack first
+  SETUP002  error  compose/broken-setup/setup.toml:11  setup.toml has unknown key dirs.recursive_chown, which is not a registered primitive
+    fix: Remove it, or add the primitive to the registry deliberately
+
+== broken-toml  [Broken]  (1 findings)
+  SETUP005  error  compose/broken-toml/setup.toml:5  setup.toml is not parseable TOML: expected ']]' to close array table name
+    fix: Fix the TOML syntax
+
+== db-client  [NeedsSetup]  (1 findings)
+  ENV004  warning  compose/db-client/compose.yaml:13  env_file compose/db-client/.env does not exist; create it from example.env
+    fix: Run app setup, or create the file
+
+== db-postgres  [Broken]  (2 findings)
+  ENV009  error  compose/db-postgres/.env:2  POSTGRES_PASSWORD still holds a placeholder value
+    fix: Set a real value
+  COMPOSE001  error  compose/db-postgres/compose.yaml:16  not valid per the Compose spec: services.db-postgres.networks must be a array
+    fix: Make the file match the Compose spec, e.g. change `networks: databases` to a list
+
+== db-prometheus  [Broken]  (3 findings)
+  ENV007  error  compose/db-prometheus/.env:2  METRICS_RETENTION_TIME is not a duration with a unit (e.g. 60d, 12h, 30s) (setup.toml type "duration")
+    fix: Set a value that satisfies the validator declared in setup.toml
+  ENV001  error  compose/db-prometheus/compose.yaml:42  APPDATA_STORAGE is referenced at services.db-prometheus.volumes[1] but is defined in neither compose/.global.env nor compose/db-prometheus/.env
+    fix: Define the variable, or correct the reference to the defined name
+  ENV008  warning  compose/db-prometheus/example.env:3  PORT is defined but never referenced in compose.yaml; unresolved references in this stack: APPDATA_STORAGE
+    fix: Remove it, or correct the compose reference
+
+== db-redis  [NeedsSetup]  (1 findings)
+  ENV004  warning  compose/db-redis/.env  compose/db-redis/.env does not exist; create it from example.env
+    fix: Run app setup, or create the file
+
+== db-timescale  [Broken]  (3 findings)
+  COMPOSE001  error  compose/db-timescale/compose.yaml:12  not valid per the Compose spec: services.db-timescale.networks must be a array
+    fix: Make the file match the Compose spec, e.g. change `networks: databases` to a list
+  ENV004  warning  compose/db-timescale/compose.yaml:15  env_file compose/db-timescale/.env does not exist; create it from example.env
+    fix: Run app setup, or create the file
+  PATH002  warning  compose/db-timescale/compose.yaml:21  host path "/mnt/fast/databases/timescale" is a literal path under a storage root; use the storage variable
+    fix: Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/...
+
+== env-container-only  [Broken]  (3 findings)
+  ENV002  error  compose/env-container-only/compose.yaml:7  MISSING is read by the container at services.env-container-only.command[2] ($$MISSING) but no env_file: or environment: entry of service env-container-only defines it
+    fix: Add the key to .global.env or <app>/.env
+  ENV003  error  compose/env-container-only/compose.yaml:23  DATA_DIR is referenced at services.env-container-only.volumes[0], an interpolation position, but is only available in container scope (via compose.yaml:environment); Compose never interpolates from env_file: or environment:
+    fix: Ensure the orchestrator supplies it in the deploy env; do not rely on env_file: or environment: for interpolation
+  ENV003  error  compose/env-container-only/compose.yaml:25  EXTRA_DIR is referenced at services.env-container-only.volumes[1], an interpolation position, but is only available in container scope (via compose/env-container-only/extra.env); Compose never interpolates from env_file: or environment:
+    fix: Ensure the orchestrator supplies it in the deploy env; do not rely on env_file: or environment: for interpolation
+
+== env-drift  [Broken]  (5 findings)
+  ENV010  warning  compose/env-drift/.env:2  SERVICE_NAME does not equal the app directory name "env-drift"
+    fix: Make them match; Traefik labels and container_name depend on it
+  ENV006  info  compose/env-drift/.env:5  UNDOCUMENTED_KEY is defined in .env but absent from compose/env-drift/example.env
+    fix: Add it to the template so other deployments know it exists
+  ENV008  warning  compose/env-drift/.env:5  UNDOCUMENTED_KEY is defined but never referenced in compose.yaml; unresolved references in this stack: GREETING
+    fix: Remove it, or correct the compose reference
+  ENV001  error  compose/env-drift/compose.yaml:16  GREETING is referenced at services.env-drift.environment.GREETING but is defined in neither compose/.global.env nor compose/env-drift/.env
+    fix: Define the variable, or correct the reference to the defined name
+  ENV005  warning  compose/env-drift/example.env:2  GREETING is defined in example.env but missing from compose/env-drift/.env
+    fix: Add the key; the template defines the expected contract
+
+== legacy-name  [Ready]  (2 findings)
+  COMPOSE004  warning  compose/legacy-name/compose.yml  compose file is named compose.yml; the layout contract requires compose.yaml
+    fix: Rename to compose.yaml
+  COMPOSE003  warning  compose/legacy-name/compose.yml:2  service legacy-name has no deploy.resources.limits
+    fix: Add cpu and memory limits under deploy.resources.limits
+
+== no-compose  [Broken]  (1 findings)
+  COMPOSE005  error  compose/no-compose  compose/no-compose has no compose.yaml
+    fix: Add one, or remove the directory
+
+== ok-control  [Ready]  (0 findings)
+
+19 errors, 19 warnings, 1 info

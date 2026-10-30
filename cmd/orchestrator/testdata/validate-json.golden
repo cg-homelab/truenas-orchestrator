@@ -1,0 +1,2171 @@
+{
+  "repo": {
+    "branch": "main",
+    "upstream": "",
+    "ahead": 0,
+    "behind": 0,
+    "dirty": false
+  },
+  "stacks": [
+    {
+      "name": "Bad_Name",
+      "status": "Broken",
+      "findings": [
+        {
+          "code": "COMPOSE006",
+          "severity": "error",
+          "file": "compose/Bad_Name",
+          "line": 0,
+          "message": "app directory name \"Bad_Name\" does not match [a-z0-9][a-z0-9-]*; the stack is not validated",
+          "fix": "Rename the directory"
+        }
+      ],
+      "interpolation": {
+        "vars": []
+      },
+      "container": {
+        "vars": []
+      }
+    },
+    {
+      "name": "authelia",
+      "status": "NeedsSetup",
+      "findings": [
+        {
+          "code": "PATH002",
+          "severity": "warning",
+          "file": "compose/authelia/compose.yaml",
+          "line": 3,
+          "message": "host path \"/mnt/fast/appdata/authelia/secrets/JWT_SECRET\" is a literal path under a storage root; use the storage variable",
+          "fix": "Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/..."
+        },
+        {
+          "code": "PATH002",
+          "severity": "warning",
+          "file": "compose/authelia/compose.yaml",
+          "line": 5,
+          "message": "host path \"/mnt/fast/appdata/authelia/secrets/SESSION_SECRET\" is a literal path under a storage root; use the storage variable",
+          "fix": "Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/..."
+        },
+        {
+          "code": "PATH002",
+          "severity": "warning",
+          "file": "compose/authelia/compose.yaml",
+          "line": 7,
+          "message": "host path \"/mnt/fast/appdata/authelia/secrets/STORAGE_PASSWORD\" is a literal path under a storage root; use the storage variable",
+          "fix": "Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/..."
+        },
+        {
+          "code": "PATH002",
+          "severity": "warning",
+          "file": "compose/authelia/compose.yaml",
+          "line": 9,
+          "message": "host path \"/mnt/fast/appdata/authelia/secrets/STORAGE_ENCRYPTION_KEY\" is a literal path under a storage root; use the storage variable",
+          "fix": "Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/..."
+        },
+        {
+          "code": "ENV004",
+          "severity": "warning",
+          "file": "compose/authelia/compose.yaml",
+          "line": 27,
+          "message": "env_file compose/authelia/.env does not exist; create it from example.env",
+          "fix": "Run app setup, or create the file"
+        },
+        {
+          "code": "PATH002",
+          "severity": "warning",
+          "file": "compose/authelia/compose.yaml",
+          "line": 34,
+          "message": "host path \"/mnt/fast/appdata/authelia/config\" is a literal path under a storage root; use the storage variable",
+          "fix": "Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/..."
+        },
+        {
+          "code": "SETUP001",
+          "severity": "warning",
+          "file": "compose/authelia/setup.sh",
+          "line": 0,
+          "message": "legacy setup.sh is present; it is never executed",
+          "fix": "Port it to setup.toml (docs/architecture/setup-toml.md)"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE",
+            "value": "[REDACTED]",
+            "source": "compose.yaml:environment",
+            "line": 29
+          },
+          {
+            "key": "AUTHELIA_SESSION_SECRET_FILE",
+            "value": "[REDACTED]",
+            "source": "compose.yaml:environment",
+            "line": 30
+          },
+          {
+            "key": "AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE",
+            "value": "[REDACTED]",
+            "source": "compose.yaml:environment",
+            "line": 32
+          },
+          {
+            "key": "AUTHELIA_STORAGE_POSTGRES_PASSWORD_FILE",
+            "value": "[REDACTED]",
+            "source": "compose.yaml:environment",
+            "line": 31
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "bad-yaml",
+      "status": "Broken",
+      "findings": [
+        {
+          "code": "COMPOSE002",
+          "severity": "error",
+          "file": "compose/bad-yaml/compose.yaml",
+          "line": 2,
+          "message": "not parseable YAML: did not find expected key",
+          "fix": "Fix the YAML syntax"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": []
+      }
+    },
+    {
+      "name": "broken-networks",
+      "status": "Broken",
+      "findings": [
+        {
+          "code": "NET001",
+          "severity": "error",
+          "file": "compose/broken-networks/compose.yaml",
+          "line": 11,
+          "message": "service broken-networks uses network backend, which is not one of home, proxy, isolated, databases",
+          "fix": "Use one of home, proxy, isolated, databases, or add it to the contract deliberately"
+        },
+        {
+          "code": "NET002",
+          "severity": "error",
+          "file": "compose/broken-networks/compose.yaml",
+          "line": 12,
+          "message": "service broken-networks uses network databases, which the top-level networks: block does not declare",
+          "fix": "Declare it in the top-level networks: block as external: true"
+        },
+        {
+          "code": "NET003",
+          "severity": "warning",
+          "file": "compose/broken-networks/compose.yaml",
+          "line": 21,
+          "message": "network home is declared without external: true",
+          "fix": "Mark it external: true; these networks are created during bootstrap"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/broken-networks/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/broken-networks/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "broken-paths",
+      "status": "Broken",
+      "findings": [
+        {
+          "code": "PATH003",
+          "severity": "error",
+          "file": "compose/broken-paths/compose.yaml",
+          "line": 19,
+          "message": "host path \"${APPCONFIG_STORAGE}/../../../etc\" resolves outside every storage root (HOMELAB_STORAGE, APPCONFIG_STORAGE, DATABASE_STORAGE, MEDIA_STORAGE)",
+          "fix": "Correct the path"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/broken-paths/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/broken-paths/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "broken-setup",
+      "status": "Broken",
+      "findings": [
+        {
+          "code": "SETUP006",
+          "severity": "error",
+          "file": "compose/broken-setup/setup.toml",
+          "line": 3,
+          "message": "[app] name does not equal the app directory name \"broken-setup\"",
+          "fix": "Make them match"
+        },
+        {
+          "code": "SETUP003",
+          "severity": "warning",
+          "file": "compose/broken-setup/setup.toml",
+          "line": 5,
+          "message": "setup.toml requires db-postgres, which is Broken",
+          "fix": "Set up the required stack first"
+        },
+        {
+          "code": "SETUP002",
+          "severity": "error",
+          "file": "compose/broken-setup/setup.toml",
+          "line": 11,
+          "message": "setup.toml has unknown key dirs.recursive_chown, which is not a registered primitive",
+          "fix": "Remove it, or add the primitive to the registry deliberately"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/broken-setup/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/broken-setup/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "broken-toml",
+      "status": "Broken",
+      "findings": [
+        {
+          "code": "SETUP005",
+          "severity": "error",
+          "file": "compose/broken-toml/setup.toml",
+          "line": 5,
+          "message": "setup.toml is not parseable TOML: expected ']]' to close array table name",
+          "fix": "Fix the TOML syntax"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/broken-toml/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/broken-toml/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "db-client",
+      "status": "NeedsSetup",
+      "findings": [
+        {
+          "code": "ENV004",
+          "severity": "warning",
+          "file": "compose/db-client/compose.yaml",
+          "line": 13,
+          "message": "env_file compose/db-client/.env does not exist; create it from example.env",
+          "fix": "Run app setup, or create the file"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "db-postgres",
+      "status": "Broken",
+      "findings": [
+        {
+          "code": "ENV009",
+          "severity": "error",
+          "file": "compose/db-postgres/.env",
+          "line": 2,
+          "message": "POSTGRES_PASSWORD still holds a placeholder value",
+          "fix": "Set a real value"
+        },
+        {
+          "code": "COMPOSE001",
+          "severity": "error",
+          "file": "compose/db-postgres/compose.yaml",
+          "line": 16,
+          "message": "not valid per the Compose spec: services.db-postgres.networks must be a array",
+          "fix": "Make the file match the Compose spec, e.g. change `networks: databases` to a list"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "POSTGRES_PASSWORD",
+            "value": "[REDACTED]",
+            "source": "compose/db-postgres/.env",
+            "line": 2
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/db-postgres/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGDATA",
+            "value": "[REDACTED]",
+            "source": "compose.yaml:environment",
+            "line": 27
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "POSTGRES_PASSWORD",
+            "value": "[REDACTED]",
+            "source": "compose/db-postgres/.env",
+            "line": 2
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/db-postgres/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "db-prometheus",
+      "status": "Broken",
+      "findings": [
+        {
+          "code": "ENV007",
+          "severity": "error",
+          "file": "compose/db-prometheus/.env",
+          "line": 2,
+          "message": "METRICS_RETENTION_TIME is not a duration with a unit (e.g. 60d, 12h, 30s) (setup.toml type \"duration\")",
+          "fix": "Set a value that satisfies the validator declared in setup.toml"
+        },
+        {
+          "code": "ENV001",
+          "severity": "error",
+          "file": "compose/db-prometheus/compose.yaml",
+          "line": 42,
+          "message": "APPDATA_STORAGE is referenced at services.db-prometheus.volumes[1] but is defined in neither compose/.global.env nor compose/db-prometheus/.env",
+          "fix": "Define the variable, or correct the reference to the defined name"
+        },
+        {
+          "code": "ENV008",
+          "severity": "warning",
+          "file": "compose/db-prometheus/example.env",
+          "line": 3,
+          "message": "PORT is defined but never referenced in compose.yaml; unresolved references in this stack: APPDATA_STORAGE",
+          "fix": "Remove it, or correct the compose reference"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "METRICS_RETENTION_TIME",
+            "value": "[REDACTED]",
+            "source": "compose/db-prometheus/.env",
+            "line": 2
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PORT",
+            "value": "[REDACTED]",
+            "source": "compose/db-prometheus/.env",
+            "line": 3
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/db-prometheus/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "METRICS_RETENTION_TIME",
+            "value": "[REDACTED]",
+            "source": "compose/db-prometheus/.env",
+            "line": 2
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PORT",
+            "value": "[REDACTED]",
+            "source": "compose/db-prometheus/.env",
+            "line": 3
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/db-prometheus/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "db-redis",
+      "status": "NeedsSetup",
+      "findings": [
+        {
+          "code": "ENV004",
+          "severity": "warning",
+          "file": "compose/db-redis/.env",
+          "line": 0,
+          "message": "compose/db-redis/.env does not exist; create it from example.env",
+          "fix": "Run app setup, or create the file"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": []
+      }
+    },
+    {
+      "name": "db-timescale",
+      "status": "Broken",
+      "findings": [
+        {
+          "code": "COMPOSE001",
+          "severity": "error",
+          "file": "compose/db-timescale/compose.yaml",
+          "line": 12,
+          "message": "not valid per the Compose spec: services.db-timescale.networks must be a array",
+          "fix": "Make the file match the Compose spec, e.g. change `networks: databases` to a list"
+        },
+        {
+          "code": "ENV004",
+          "severity": "warning",
+          "file": "compose/db-timescale/compose.yaml",
+          "line": 15,
+          "message": "env_file compose/db-timescale/.env does not exist; create it from example.env",
+          "fix": "Run app setup, or create the file"
+        },
+        {
+          "code": "PATH002",
+          "severity": "warning",
+          "file": "compose/db-timescale/compose.yaml",
+          "line": 21,
+          "message": "host path \"/mnt/fast/databases/timescale\" is a literal path under a storage root; use the storage variable",
+          "fix": "Replace the literal prefix with the storage variable, e.g. ${APPCONFIG_STORAGE}/..."
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGDATA",
+            "value": "[REDACTED]",
+            "source": "compose.yaml:environment",
+            "line": 17
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "env-container-only",
+      "status": "Broken",
+      "findings": [
+        {
+          "code": "ENV002",
+          "severity": "error",
+          "file": "compose/env-container-only/compose.yaml",
+          "line": 7,
+          "message": "MISSING is read by the container at services.env-container-only.command[2] ($$MISSING) but no env_file: or environment: entry of service env-container-only defines it",
+          "fix": "Add the key to .global.env or \u003capp\u003e/.env"
+        },
+        {
+          "code": "ENV003",
+          "severity": "error",
+          "file": "compose/env-container-only/compose.yaml",
+          "line": 23,
+          "message": "DATA_DIR is referenced at services.env-container-only.volumes[0], an interpolation position, but is only available in container scope (via compose.yaml:environment); Compose never interpolates from env_file: or environment:",
+          "fix": "Ensure the orchestrator supplies it in the deploy env; do not rely on env_file: or environment: for interpolation"
+        },
+        {
+          "code": "ENV003",
+          "severity": "error",
+          "file": "compose/env-container-only/compose.yaml",
+          "line": 25,
+          "message": "EXTRA_DIR is referenced at services.env-container-only.volumes[1], an interpolation position, but is only available in container scope (via compose/env-container-only/extra.env); Compose never interpolates from env_file: or environment:",
+          "fix": "Ensure the orchestrator supplies it in the deploy env; do not rely on env_file: or environment: for interpolation"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/env-container-only/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DATA_DIR",
+            "value": "[REDACTED]",
+            "source": "compose.yaml:environment",
+            "line": 20
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "EXTRA_DIR",
+            "value": "[REDACTED]",
+            "source": "compose/env-container-only/extra.env",
+            "line": 2
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/env-container-only/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "env-drift",
+      "status": "Broken",
+      "findings": [
+        {
+          "code": "ENV010",
+          "severity": "warning",
+          "file": "compose/env-drift/.env",
+          "line": 2,
+          "message": "SERVICE_NAME does not equal the app directory name \"env-drift\"",
+          "fix": "Make them match; Traefik labels and container_name depend on it"
+        },
+        {
+          "code": "ENV006",
+          "severity": "info",
+          "file": "compose/env-drift/.env",
+          "line": 5,
+          "message": "UNDOCUMENTED_KEY is defined in .env but absent from compose/env-drift/example.env",
+          "fix": "Add it to the template so other deployments know it exists"
+        },
+        {
+          "code": "ENV008",
+          "severity": "warning",
+          "file": "compose/env-drift/.env",
+          "line": 5,
+          "message": "UNDOCUMENTED_KEY is defined but never referenced in compose.yaml; unresolved references in this stack: GREETING",
+          "fix": "Remove it, or correct the compose reference"
+        },
+        {
+          "code": "ENV001",
+          "severity": "error",
+          "file": "compose/env-drift/compose.yaml",
+          "line": 16,
+          "message": "GREETING is referenced at services.env-drift.environment.GREETING but is defined in neither compose/.global.env nor compose/env-drift/.env",
+          "fix": "Define the variable, or correct the reference to the defined name"
+        },
+        {
+          "code": "ENV005",
+          "severity": "warning",
+          "file": "compose/env-drift/example.env",
+          "line": 2,
+          "message": "GREETING is defined in example.env but missing from compose/env-drift/.env",
+          "fix": "Add the key; the template defines the expected contract"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/env-drift/.env",
+            "line": 2
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          },
+          {
+            "key": "UNDOCUMENTED_KEY",
+            "value": "[REDACTED]",
+            "source": "compose/env-drift/.env",
+            "line": 5
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "GREETING",
+            "value": "[REDACTED]",
+            "source": "compose.yaml:environment",
+            "line": 16
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/env-drift/.env",
+            "line": 2
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          },
+          {
+            "key": "UNDOCUMENTED_KEY",
+            "value": "[REDACTED]",
+            "source": "compose/env-drift/.env",
+            "line": 5
+          }
+        ]
+      }
+    },
+    {
+      "name": "legacy-name",
+      "status": "Ready",
+      "findings": [
+        {
+          "code": "COMPOSE004",
+          "severity": "warning",
+          "file": "compose/legacy-name/compose.yml",
+          "line": 0,
+          "message": "compose file is named compose.yml; the layout contract requires compose.yaml",
+          "fix": "Rename to compose.yaml"
+        },
+        {
+          "code": "COMPOSE003",
+          "severity": "warning",
+          "file": "compose/legacy-name/compose.yml",
+          "line": 2,
+          "message": "service legacy-name has no deploy.resources.limits",
+          "fix": "Add cpu and memory limits under deploy.resources.limits"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/legacy-name/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/legacy-name/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "no-compose",
+      "status": "Broken",
+      "findings": [
+        {
+          "code": "COMPOSE005",
+          "severity": "error",
+          "file": "compose/no-compose",
+          "line": 0,
+          "message": "compose/no-compose has no compose.yaml",
+          "fix": "Add one, or remove the directory"
+        }
+      ],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": []
+      }
+    },
+    {
+      "name": "ok-control",
+      "status": "Ready",
+      "findings": [],
+      "interpolation": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "injected",
+            "line": 0
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/ok-control/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      },
+      "container": {
+        "vars": [
+          {
+            "key": "APPCONFIG_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 13
+          },
+          {
+            "key": "DATABASE_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 14
+          },
+          {
+            "key": "DOMAIN_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 5
+          },
+          {
+            "key": "HOMELAB_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 12
+          },
+          {
+            "key": "MEDIA_STORAGE",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 15
+          },
+          {
+            "key": "PGID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 9
+          },
+          {
+            "key": "PUID",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 8
+          },
+          {
+            "key": "SERVICE_NAME",
+            "value": "[REDACTED]",
+            "source": "compose/ok-control/.env",
+            "line": 1
+          },
+          {
+            "key": "TZ",
+            "value": "[REDACTED]",
+            "source": "compose/.global.env",
+            "line": 2
+          }
+        ]
+      }
+    }
+  ],
+  "findings": [
+    {
+      "code": "GIT001",
+      "severity": "error",
+      "file": "compose/env-drift/.env",
+      "line": 0,
+      "message": "compose/env-drift/.env is tracked by git; real env files must be gitignored",
+      "fix": "Add the gitignore rule and `git rm --cached` the file. Treat any committed secrets as compromised and rotate them"
+    }
+  ]
+}

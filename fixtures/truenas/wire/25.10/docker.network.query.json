@@ -1,0 +1,98 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output",
+  "jsonrpc": "2.0",
+  "result": [
+    {
+      "ipam": {
+        "Driver": "default",
+        "Options": null,
+        "Config": [
+          {
+            "Subnet": "172.30.0.0/16",
+            "Gateway": "172.30.0.1"
+          }
+        ]
+      },
+      "labels": {
+        "com.docker.compose.network": "home",
+        "com.docker.compose.project": "ix-homelab-networks",
+        "com.docker.compose.version": "2.39.4"
+      },
+      "created": "2026-10-01T12:00:00.000000000Z",
+      "driver": "bridge",
+      "id": "686f6d65686f6d65686f6d65686f6d65686f6d65686f6d65686f6d65686f6d65",
+      "name": "home",
+      "scope": "local",
+      "short_id": "686f6d65686f"
+    },
+    {
+      "ipam": {
+        "Driver": "default",
+        "Options": null,
+        "Config": [
+          {
+            "Subnet": "172.30.0.0/16",
+            "Gateway": "172.30.0.1"
+          }
+        ]
+      },
+      "labels": {
+        "com.docker.compose.network": "proxy",
+        "com.docker.compose.project": "ix-homelab-networks",
+        "com.docker.compose.version": "2.39.4"
+      },
+      "created": "2026-10-01T12:00:00.000000000Z",
+      "driver": "bridge",
+      "id": "70726f787970726f787970726f787970726f787970726f787970726f78797072",
+      "name": "proxy",
+      "scope": "local",
+      "short_id": "70726f787970"
+    },
+    {
+      "ipam": {
+        "Driver": "default",
+        "Options": null,
+        "Config": [
+          {
+            "Subnet": "172.30.0.0/16",
+            "Gateway": "172.30.0.1"
+          }
+        ]
+      },
+      "labels": {
+        "com.docker.compose.network": "isolated",
+        "com.docker.compose.project": "ix-homelab-networks",
+        "com.docker.compose.version": "2.39.4"
+      },
+      "created": "2026-10-01T12:00:00.000000000Z",
+      "driver": "bridge",
+      "id": "69736f6c6174656469736f6c6174656469736f6c6174656469736f6c61746564",
+      "name": "isolated",
+      "scope": "local",
+      "short_id": "69736f6c6174"
+    },
+    {
+      "ipam": {
+        "Driver": "default",
+        "Options": null,
+        "Config": [
+          {
+            "Subnet": "172.30.0.0/16",
+            "Gateway": "172.30.0.1"
+          }
+        ]
+      },
+      "labels": {
+        "com.docker.compose.network": "databases",
+        "com.docker.compose.project": "ix-homelab-networks",
+        "com.docker.compose.version": "2.39.4"
+      },
+      "created": "2026-10-01T12:00:00.000000000Z",
+      "driver": "bridge",
+      "id": "6461746162617365736461746162617365736461746162617365736461746162",
+      "name": "databases",
+      "scope": "local",
+      "short_id": "646174616261"
+    }
+  ]
+}

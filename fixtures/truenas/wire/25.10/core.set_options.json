@@ -1,0 +1,9 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output",
+  "jsonrpc": "2.0",
+  "result": {
+    "legacy_jobs": false,
+    "private_methods": false,
+    "py_exceptions": false
+  }
+}

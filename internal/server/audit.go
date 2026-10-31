@@ -19,6 +19,17 @@ const (
 	auditConfigWrite = "config.write"
 	auditDirCreate   = "dir.create"
 	auditSetupRun    = "setup.run"
+
+	auditTrueNASSettingsWrite  = "truenas.credentials.write"
+	auditTrueNASSettingsDelete = "truenas.credentials.delete"
+	auditGroupCreate           = "group.create"
+	auditUserCreate            = "user.create"
+	auditDatasetCreate         = "dataset.create"
+	auditACLSet                = "acl.set"
+	auditAppCreate             = "app.create"
+	auditNetworkCreate         = "network.create"
+	auditBootstrapRun          = "bootstrap.run"
+	auditDeployKeyCreate       = "deploy_key.create"
 )
 
 // auditor appends to the audit log. It takes details as plain strings, never a homelab.Secret:
@@ -51,8 +62,8 @@ type AuditEntryView struct {
 	ID      int64             `json:"id"`
 	At      time.Time         `json:"at"`
 	User    string            `json:"user" doc:"Who made the change, or started the job that made it"`
-	Action  string            `json:"action" doc:"What happened, e.g. env.write, secret.write, setup.run"`
-	Target  string            `json:"target" doc:"The repo-relative or absolute path written"`
+	Action  string            `json:"action" doc:"What happened, e.g. env.write, secret.write, setup.run, dataset.create, bootstrap.run"`
+	Target  string            `json:"target" doc:"The repo-relative or absolute path written, or the TrueNAS object changed"`
 	Details map[string]string `json:"details" doc:"Key names, paths and counts; never a value"`
 }
 

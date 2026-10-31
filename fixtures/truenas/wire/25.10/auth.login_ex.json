@@ -1,0 +1,41 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output",
+  "jsonrpc": "2.0",
+  "result": {
+    "response_type": "SUCCESS",
+    "user_info": {
+      "id": 71,
+      "uid": 950,
+      "username": "truenas_admin",
+      "full_name": "Local Administrator",
+      "builtin": false,
+      "local": true,
+      "group": {
+        "id": 41,
+        "bsdgrp_gid": 950,
+        "bsdgrp_group": "truenas_admin",
+        "bsdgrp_builtin": false,
+        "bsdgrp_sudo_commands": [],
+        "bsdgrp_sudo_commands_nopasswd": [],
+        "bsdgrp_smb": false,
+        "bsdgrp_userns_idmap": 0
+      },
+      "groups": [],
+      "privilege": {
+        "roles": {
+          "$set": [
+            "FULL_ADMIN"
+          ]
+        },
+        "allowlist": [],
+        "web_shell": true
+      },
+      "account_attributes": [
+        "LOCAL",
+        "API_KEY"
+      ],
+      "two_factor_config": null
+    },
+    "authenticator": "LEVEL_1"
+  }
+}

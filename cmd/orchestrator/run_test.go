@@ -7,13 +7,20 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"maps"
 	"net/http"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+
+	"github.com/cg-homelab/truenas-orchestrator/internal/homelab"
 )
 
 func TestRunOpenAPI(t *testing.T) {
@@ -85,6 +92,12 @@ func TestRunUsageErrors(t *testing.T) {
 
 func TestRunServeConfigErrors(t *testing.T) {
 	dbPath := "ORCH_DB_PATH=" + filepath.Join(t.TempDir(), "o.db")
+	missing := filepath.Join(t.TempDir(), "missing")
+	notPEM := filepath.Join(t.TempDir(), "not.pem")
+	if err := os.WriteFile(notPEM, []byte("not a certificate\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	fixtures := filepath.Join("..", "..", "fixtures", "truenas")
 	tests := []struct {
 		name    string
 		environ []string
@@ -98,6 +111,17 @@ func TestRunServeConfigErrors(t *testing.T) {
 		{"zero session idle", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_SESSION_IDLE=0s"}, "ORCH_SESSION_IDLE"},
 		{"negative session lifetime", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_SESSION_LIFETIME=-1h"}, "ORCH_SESSION_LIFETIME"},
 		{"bad check host paths", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_CHECK_HOST_PATHS=sometimes"}, "CheckHostPaths"},
+		{"api key variable", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_TRUENAS_API_KEY=hunter2"}, "ORCH_TRUENAS_API_KEY is not supported"},
+		{"plain ws to a remote host", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_TRUENAS_URL=ws://nas.lan"}, "loopback"},
+		{"https truenas url", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_TRUENAS_URL=https://nas.lan"}, "wss://"},
+		{"truenas url with a path", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_TRUENAS_URL=wss://nas.lan/api/current"}, "wss://host"},
+		{"bad insecure tls", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_TRUENAS_INSECURE_TLS=perhaps"}, "TrueNASInsecureTLS"},
+		{"missing ca file", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_TRUENAS_URL=wss://nas.lan", "ORCH_TRUENAS_CA_FILE=" + missing}, "ORCH_TRUENAS_CA_FILE"},
+		{"ca file without pem", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_TRUENAS_URL=wss://nas.lan", "ORCH_TRUENAS_CA_FILE=" + notPEM}, "no PEM certificate"},
+		{"unknown fake scenario", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_TRUENAS_URL=fake:nope", "ORCH_TRUENAS_FIXTURES=" + fixtures}, "fake:nope"},
+		{"missing fixtures", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_TRUENAS_URL=fake", "ORCH_TRUENAS_FIXTURES=" + missing}, "ORCH_TRUENAS_URL fake"},
+		{"missing state storage", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_STATE_STORAGE=" + missing}, "ORCH_STATE_STORAGE"},
+		{"state storage is a file", []string{dbPath, "HOMELAB_STORAGE=/x", "ORCH_STATE_STORAGE=" + notPEM}, "not a directory"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -111,7 +135,97 @@ func TestRunServeConfigErrors(t *testing.T) {
 			if !strings.Contains(err.Error(), tt.wantMsg) {
 				t.Errorf("run(serve) error = %q, want it to mention %s", err, tt.wantMsg)
 			}
+			if strings.Contains(err.Error(), "hunter2") {
+				t.Errorf("run(serve) error holds a key value: %q", err)
+			}
 		})
+	}
+}
+
+func TestNewTrueNASDialerFake(t *testing.T) {
+	fixtures := filepath.Join("..", "..", "fixtures", "truenas")
+	logger := slog.New(slog.DiscardHandler)
+	creds := homelab.TrueNASCredentials{Username: "truenas_admin", APIKey: homelab.NewSecret("hunter2")}
+	tests := []struct {
+		name    string
+		url     string
+		wantURL string
+		wantErr error
+	}{
+		{"default scenario", "fake", "fake:fresh", nil},
+		{"named scenario", "fake:ready", "fake:ready", nil},
+		{"rejected key", "fake:auth-failure", "fake:auth-failure", homelab.ErrUnauthenticated},
+		{"unsupported version", "fake:version-out-of-range", "fake:version-out-of-range", homelab.ErrValidation},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := serveConfig{TrueNASURL: tt.url, TrueNASFixtures: fixtures, TrueNASFakeMnt: "/mnt"}
+			dial, url, err := newTrueNASDialer(cfg, homelab.DefaultSelfApp, logger)
+			if err != nil {
+				t.Fatalf("newTrueNASDialer(%q) error = %v", tt.url, err)
+			}
+			if url != tt.wantURL {
+				t.Errorf("newTrueNASDialer(%q) url = %q, want %q", tt.url, url, tt.wantURL)
+			}
+			conn, err := dial(t.Context(), creds)
+			if tt.wantErr != nil {
+				if !errors.Is(err, tt.wantErr) {
+					t.Fatalf("dial error = %v, want %v", err, tt.wantErr)
+				}
+				if conn != nil { // an interface holding a nil *Fake would pass a nil check by the caller
+					t.Fatalf("dial on error returned a non-nil conn %#v", conn)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("dial error = %v", err)
+			}
+			defer func() { _ = conn.Close() }()
+			if _, err := conn.SystemVersion(t.Context()); err != nil {
+				t.Errorf("SystemVersion error = %v", err)
+			}
+		})
+	}
+}
+
+func TestEnvironmentConfigIdentityCheck(t *testing.T) {
+	tests := []struct {
+		name string
+		url  string
+		want homelab.EnvironmentConfig
+	}{
+		{"not configured", "", homelab.EnvironmentConfig{}},
+		{"fake", "fake", homelab.EnvironmentConfig{}},
+		{"fake scenario", "fake:ready", homelab.EnvironmentConfig{}},
+		{"wss", "wss://nas.lan", homelab.EnvironmentConfig{CheckIdentity: true, ProcessUID: os.Getuid(), ProcessGID: os.Getgid()}},
+		{"loopback ws", "ws://127.0.0.1:6000", homelab.EnvironmentConfig{CheckIdentity: true, ProcessUID: os.Getuid(), ProcessGID: os.Getgid()}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			want := tt.want
+			want.SelfApp, want.HomelabStorage, want.StateStorage = homelab.DefaultSelfApp, "/mnt/tank/apps/homelab", "/mnt/tank/orchestrator"
+			got := environmentConfig(tt.url, homelab.DefaultSelfApp, "/mnt/tank/apps/homelab", "/mnt/tank/orchestrator")
+			if diff := cmp.Diff(want, got, cmpopts.IgnoreUnexported(homelab.DotEnv{})); diff != "" {
+				t.Errorf("environmentConfig(%q) mismatch (-want +got):\n%s", tt.url, diff)
+			}
+		})
+	}
+}
+
+func TestNewTrueNASDialerNotConfigured(t *testing.T) {
+	dial, url, err := newTrueNASDialer(serveConfig{}, homelab.DefaultSelfApp, slog.New(slog.DiscardHandler))
+	if err != nil || dial != nil || url != "" {
+		t.Errorf("newTrueNASDialer(empty URL) = %v, %q, %v; want nil, \"\", nil", dial != nil, url, err)
+	}
+}
+
+func TestNewTrueNASDialerWSS(t *testing.T) {
+	for _, raw := range []string{"wss://nas.lan", "wss://10.0.0.2:8443", "ws://127.0.0.1:6000", "ws://localhost"} {
+		cfg := serveConfig{TrueNASURL: raw, TrueNASInsecureTLS: true}
+		dial, url, err := newTrueNASDialer(cfg, homelab.DefaultSelfApp, slog.New(slog.DiscardHandler))
+		if err != nil || dial == nil || url != raw {
+			t.Errorf("newTrueNASDialer(%q) = dialer %v, %q, %v; want a dialer, %q, nil", raw, dial != nil, url, err, raw)
+		}
 	}
 }
 

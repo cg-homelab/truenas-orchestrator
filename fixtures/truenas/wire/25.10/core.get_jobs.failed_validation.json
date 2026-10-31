@@ -1,0 +1,48 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output; job.py Job.__encode__ reports ValidationError(s) as exc_info.type VALIDATION",
+  "jsonrpc": "2.0",
+  "result": [
+    {
+      "id": 1240,
+      "message_ids": [
+        7
+      ],
+      "method": "app.create",
+      "arguments": [],
+      "transient": false,
+      "description": null,
+      "abortable": false,
+      "logs_path": null,
+      "logs_excerpt": null,
+      "progress": {
+        "percent": 100,
+        "description": null,
+        "extra": null
+      },
+      "result": null,
+      "result_encoding_error": null,
+      "error": "[EINVAL] app_create.custom_compose_config_string: Failed 'docker compose config' validation",
+      "exception": null,
+      "exc_info": {
+        "repr": "ValidationErrors(...)",
+        "type": "VALIDATION",
+        "errno": null,
+        "extra": [
+          [
+            "app_create.custom_compose_config_string",
+            "Failed 'docker compose config' validation",
+            22
+          ]
+        ]
+      },
+      "state": "FAILED",
+      "time_started": {
+        "$date": 1761800000000
+      },
+      "time_finished": {
+        "$date": 1761800001000
+      },
+      "credentials": null
+    }
+  ]
+}

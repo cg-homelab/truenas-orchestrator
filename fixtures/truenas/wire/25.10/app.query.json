@@ -1,0 +1,52 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output",
+  "jsonrpc": "2.0",
+  "result": [
+    {
+      "name": "truenas-orchestrator",
+      "id": "truenas-orchestrator",
+      "active_workloads": {
+        "containers": 1,
+        "used_ports": [],
+        "container_details": [],
+        "volumes": [],
+        "images": [],
+        "networks": []
+      },
+      "state": "RUNNING",
+      "upgrade_available": false,
+      "latest_version": "1.0.0",
+      "image_updates_available": false,
+      "custom_app": true,
+      "migrated": false,
+      "human_version": "1.0.0",
+      "metadata": {},
+      "notes": null,
+      "portals": {},
+      "version": "1.0.0"
+    },
+    {
+      "name": "homelab-networks",
+      "id": "homelab-networks",
+      "active_workloads": {
+        "containers": 1,
+        "used_ports": [],
+        "container_details": [],
+        "volumes": [],
+        "images": [],
+        "networks": []
+      },
+      "state": "RUNNING",
+      "upgrade_available": false,
+      "latest_version": "1.0.0",
+      "image_updates_available": false,
+      "custom_app": true,
+      "migrated": false,
+      "human_version": "1.0.0",
+      "metadata": {},
+      "notes": null,
+      "portals": {},
+      "version": "1.0.0"
+    }
+  ]
+}

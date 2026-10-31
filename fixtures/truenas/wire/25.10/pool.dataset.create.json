@@ -1,0 +1,47 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output",
+  "jsonrpc": "2.0",
+  "result": {
+    "id": "tank/apps/appconfigs",
+    "type": "FILESYSTEM",
+    "name": "tank/apps/appconfigs",
+    "pool": "tank",
+    "encrypted": false,
+    "encryption_root": null,
+    "key_loaded": true,
+    "locked": false,
+    "mountpoint": "/mnt/tank/apps/appconfigs",
+    "acltype": {
+      "parsed": "posix",
+      "rawvalue": "posix",
+      "value": "POSIX",
+      "source": "LOCAL"
+    },
+    "aclmode": {
+      "parsed": "discard",
+      "rawvalue": "discard",
+      "value": "DISCARD",
+      "source": "LOCAL"
+    },
+    "atime": {
+      "parsed": "off",
+      "rawvalue": "off",
+      "value": "OFF",
+      "source": "LOCAL"
+    },
+    "compression": {
+      "parsed": "lz4",
+      "rawvalue": "lz4",
+      "value": "LZ4",
+      "source": "LOCAL"
+    },
+    "recordsize": {
+      "parsed": 131072,
+      "rawvalue": "131072",
+      "value": "128K",
+      "source": "LOCAL"
+    },
+    "encryption_algorithm": null,
+    "key_format": null
+  }
+}

@@ -43,6 +43,16 @@ type Deps struct {
 	Host homelab.SetupHost
 	// Validate configures homelab.ValidateRepo for every report the server builds.
 	Validate homelab.Options
+	// TrueNAS opens a session with TrueNAS. Nil reports the connection as not_configured and
+	// refuses the operations that need one.
+	TrueNAS TrueNASDialer
+	// TrueNASURL is where TrueNAS is reached, shown in the settings; never used to connect.
+	TrueNASURL string
+	// Credentials stores the TrueNAS API key. Nil reports the connection as not_configured.
+	Credentials CredentialStore
+	// Environment configures the readiness check and the bootstrap. Global is ignored: the
+	// handlers read compose/.global.env from the repo on every request.
+	Environment homelab.EnvironmentConfig
 	// SecureCookies sets the Secure flag on the session cookie. TLS terminates at the proxy, so
 	// the server cannot detect it; false only for plain-HTTP local development.
 	SecureCookies bool

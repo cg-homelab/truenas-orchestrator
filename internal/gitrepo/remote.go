@@ -42,11 +42,12 @@ func (r *Repo) Fetch(ctx context.Context, report func(line string)) (homelab.Rep
 	if err := r.checkTopLevel(ctx); err != nil {
 		return homelab.RepoStatus{}, err
 	}
-	if err := runStreaming(ctx, r.root, report, "fetch", "--prune"); err != nil {
+	env := r.sshEnv()
+	if err := runStreaming(ctx, r.root, env, report, "fetch", "--prune"); err != nil {
 		return homelab.RepoStatus{}, err
 	}
 	if _, err := r.git(ctx, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"); err == nil {
-		if err := runStreaming(ctx, r.root, report, "pull", "--ff-only"); err != nil {
+		if err := runStreaming(ctx, r.root, env, report, "pull", "--ff-only"); err != nil {
 			return homelab.RepoStatus{}, err
 		}
 	} else if ctx.Err() != nil {
@@ -100,19 +101,20 @@ func Clone(ctx context.Context, url, dest string, report func(line string)) (*Re
 	case err != nil && !errors.Is(err, os.ErrNotExist):
 		return nil, fmt.Errorf("clone into %s: %w", abs, err)
 	}
-	if err := runStreaming(ctx, "", report, "clone", "--progress", "--", url, abs); err != nil {
+	if err := runStreaming(ctx, "", nil, report, "clone", "--progress", "--", url, abs); err != nil {
 		return nil, err
 	}
 	return New(abs), nil
 }
 
-// runStreaming runs git with args in dir (the current directory when empty), passing each line of
-// stdout and stderr to report as it arrives. Unlike Repo.git it allows git to take locks, and it
-// never prompts for credentials. On failure the error carries the redacted tail of the output.
-func runStreaming(ctx context.Context, dir string, report func(string), args ...string) error {
+// runStreaming runs git with args in dir (the current directory when empty) and env added to the
+// process environment, passing each line of stdout and stderr to report as it arrives. Unlike
+// Repo.git it allows git to take locks, and it never prompts for credentials. On failure the
+// error carries the redacted tail of the output.
+func runStreaming(ctx context.Context, dir string, env []string, report func(string), args ...string) error {
 	cmd := exec.CommandContext(ctx, "git", args...) //nolint:gosec // callers pass fixed subcommands and flags
 	cmd.Dir = dir
-	cmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0")
+	cmd.Env = append(append(os.Environ(), "GIT_TERMINAL_PROMPT=0"), env...)
 	cmd.WaitDelay = 2 * time.Second
 	lw := &lineWriter{report: report}
 	cmd.Stdout, cmd.Stderr = lw, lw

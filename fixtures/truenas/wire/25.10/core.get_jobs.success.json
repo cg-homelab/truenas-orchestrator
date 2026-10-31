@@ -1,0 +1,37 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output",
+  "jsonrpc": "2.0",
+  "result": [
+    {
+      "id": 1234,
+      "message_ids": [
+        7
+      ],
+      "method": "filesystem.setperm",
+      "arguments": [],
+      "transient": false,
+      "description": null,
+      "abortable": false,
+      "logs_path": null,
+      "logs_excerpt": null,
+      "progress": {
+        "percent": 100,
+        "description": null,
+        "extra": null
+      },
+      "result": null,
+      "result_encoding_error": null,
+      "error": null,
+      "exception": null,
+      "exc_info": null,
+      "state": "SUCCESS",
+      "time_started": {
+        "$date": 1761800000000
+      },
+      "time_finished": {
+        "$date": 1761800001000
+      },
+      "credentials": null
+    }
+  ]
+}

@@ -5,8 +5,8 @@ git-backed homelab repo full of Docker Compose stacks.
 
 ## Current state and how to resume
 
-**Status:** M3 done.
-**Next up:** M4 (or M6). M3 and M4 are independent; M6 needs only M3; M5 needs both ([roadmap](roadmap.md)).
+**Status:** M4 done.
+**Next up:** M5 (needs M3 and M4) or M6 ([roadmap](roadmap.md)).
 
 To pick this work up cold, read in this order:
 
@@ -37,6 +37,7 @@ update the status column in `roadmap.md`. That is the handoff surface.
 | [architecture/go-guidelines.md](architecture/go-guidelines.md) | Normative Go guidelines: layout, Rust-to-Go pitfalls, HTTP/data/testing patterns, lint config |
 | [../CLAUDE.md](../CLAUDE.md) | Hard rules for humans and coding agents; where things go |
 | [on-server-file-structure.md](on-server-file-structure.md) | On-server paths and storage environment variables |
+| [hand-install.md](hand-install.md) | Preparing a TrueNAS server by hand: the same steps B0–B13 as `deploy/bootstrap.sh` |
 | [milestones/](milestones/) | One issue-ready file per milestone |
 
 ## What this tool is for

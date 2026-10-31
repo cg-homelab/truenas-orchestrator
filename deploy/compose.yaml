@@ -1,0 +1,62 @@
+# The truenas-orchestrator TrueNAS custom app (D11). bootstrap.sh (step B13) replaces every placeholder
+# before app.create: the storage roots, PUID, PGID, ORCH_IMAGE and ORCH_APP_NAME come from bootstrap.env;
+# TRUENAS_UI_PORT and TRUENAS_TLS_SERVER_NAME come from the TrueNAS UI settings and certificate (B12).
+# For a hand install, replace them yourself (docs/hand-install.md, B13). Once installed, the orchestrator
+# never modifies this app entry.
+services:
+  orchestrator:
+    image: ${ORCH_IMAGE}
+    user: "${PUID}:${PGID}"
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp"]
+    environment:
+      HOME: /tmp
+      ORCH_LISTEN: ":8080"
+      ORCH_DB_PATH: ${ORCH_STATE_STORAGE}/orchestrator.db
+      ORCH_STATE_STORAGE: ${ORCH_STATE_STORAGE}
+      HOMELAB_STORAGE: ${HOMELAB_STORAGE}
+      ORCH_SELF_APP: ${ORCH_APP_NAME}
+      ORCH_TRUENAS_URL: wss://host.docker.internal:${TRUENAS_UI_PORT}
+      ORCH_TRUENAS_CA_FILE: ${ORCH_STATE_STORAGE}/truenas-ca.pem
+      ORCH_TRUENAS_TLS_SERVER_NAME: ${TRUENAS_TLS_SERVER_NAME}
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    # Storage roots at identical paths, so paths in plans, .global.env and compose files mean the same
+    # thing inside and outside the container. create_host_path: false: Docker must never create a missing
+    # root (it would be root-owned, D32); the app fails to start instead. Media is user data the
+    # orchestrator only checks, so it is read-only.
+    volumes:
+      - type: bind
+        source: ${HOMELAB_STORAGE}
+        target: ${HOMELAB_STORAGE}
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${APPCONFIG_STORAGE}
+        target: ${APPCONFIG_STORAGE}
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${DATABASE_STORAGE}
+        target: ${DATABASE_STORAGE}
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${MEDIA_STORAGE}
+        target: ${MEDIA_STORAGE}
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${ORCH_STATE_STORAGE}
+        target: ${ORCH_STATE_STORAGE}
+        bind: {create_host_path: false}
+    networks: [proxy]
+    # Break-glass access when the reverse proxy is down: ssh -L 30808:127.0.0.1:30808 <truenas>.
+    ports: ["127.0.0.1:30808:8080"]
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+networks:
+  proxy:
+    external: true

@@ -1,0 +1,27 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output",
+  "jsonrpc": "2.0",
+  "result": {
+    "realpath": "/mnt",
+    "type": "DIRECTORY",
+    "size": 4,
+    "allocation_size": 512,
+    "mode": 16877,
+    "mount_id": 100,
+    "uid": 0,
+    "gid": 0,
+    "atime": 1761800000.0,
+    "mtime": 1761800000.0,
+    "ctime": 1761800000.0,
+    "btime": 1761800000.0,
+    "dev": 70,
+    "inode": 34,
+    "nlink": 2,
+    "acl": false,
+    "is_mountpoint": false,
+    "is_ctldir": false,
+    "attributes": [],
+    "user": "root",
+    "group": "root"
+  }
+}

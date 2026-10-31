@@ -26,6 +26,9 @@ func apiError(ctx context.Context, logger *slog.Logger, err error) error {
 		return huma.Error403Forbidden("forbidden")
 	case errors.Is(err, homelab.ErrUnauthenticated):
 		return huma.Error401Unauthorized("authentication required")
+	case errors.Is(err, homelab.ErrUnavailable):
+		logger.WarnContext(ctx, "upstream unavailable", "error", err)
+		return huma.Error502BadGateway("an upstream service is unreachable")
 	case ctx.Err() != nil:
 		// The client went away or the request timed out: not a server fault worth an alert.
 		logger.InfoContext(ctx, "request cancelled", "error", err)

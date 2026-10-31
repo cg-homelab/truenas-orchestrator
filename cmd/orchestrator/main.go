@@ -1,10 +1,11 @@
 // Command orchestrator is the TrueNAS homelab orchestrator: the HTTP server, the validator CLI,
-// and the OpenAPI dumper.
+// the TrueNAS API smoke check and the OpenAPI dumper.
 //
 // Usage:
 //
 //	orchestrator serve
 //	orchestrator validate [--json] [--homelab-storage DIR] [--check-host-paths] <path>
+//	orchestrator smoke [--record DIR]
 //	orchestrator openapi
 package main
 
@@ -25,7 +26,7 @@ const (
 )
 
 // errUsage marks errors caused by how the command was invoked. main exits 2 for them.
-var errUsage = errors.New("usage: orchestrator serve | validate [--json] [--homelab-storage DIR] [--check-host-paths] <path> | openapi")
+var errUsage = errors.New("usage: orchestrator serve | validate [--json] [--homelab-storage DIR] [--check-host-paths] <path> | smoke [--record DIR] | openapi")
 
 func main() {
 	if err := run(context.Background(), os.Args, os.Environ(), os.Stdout); err != nil {
@@ -47,6 +48,8 @@ func run(ctx context.Context, args, environ []string, stdout io.Writer) error {
 		return runServe(ctx, rest, environ, stdout)
 	case "validate":
 		return runValidate(ctx, rest, stdout) // flags and a path only: no environment, no database
+	case "smoke":
+		return runSmoke(ctx, rest, environ, stdout) // TRUENAS_* from the environment; the key only there
 	case "openapi":
 		return runOpenAPI(rest, stdout) // no configuration at all
 	default:

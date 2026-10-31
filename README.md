@@ -5,7 +5,7 @@ Opinionated homelab orchestration tool for TrueNAS.
 It runs as a TrueNAS SCALE app and manages a git-backed homelab repository full of Docker Compose
 stacks — validating them, setting them up, and deploying them.
 
-> **Status:** M0–M3 done (validator, server and UI, app setup); next is M4. Start at **[docs/README.md](docs/README.md)**, then
+> **Status:** M0–M4 done (validator, server and UI, app setup, TrueNAS client and bootstrap); next is M5 or M6. Start at **[docs/README.md](docs/README.md)**, then
 > [docs/roadmap.md](docs/roadmap.md). Backend is Go (decided 2026-10-30, see docs/decisions.md D15).
 
 ## The problem
@@ -76,6 +76,21 @@ Prerequisites: [just](https://github.com/casey/just), Go 1.27 and Node 22+. Run 
 | `ORCH_SESSION_IDLE` | `24h` | Session ends after this long without a request |
 | `ORCH_SESSION_LIFETIME` | `168h` | Session ends this long after login |
 | `ORCH_CHECK_HOST_PATHS` | `true` | Enable PATH001 (host paths must exist on this machine) |
+| `ORCH_TRUENAS_URL` | empty | TrueNAS API: `wss://host[:port]` (`ws://` only for a loopback host), or `fake[:scenario]` for the in-process fake (default scenario `fresh`). Empty: TrueNAS not configured. The API key is entered in the UI, never set here |
+| `ORCH_TRUENAS_CA_FILE` | empty | PEM roots that verify TrueNAS (e.g. its UI certificate); empty uses the system roots |
+| `ORCH_TRUENAS_TLS_SERVER_NAME` | empty | Name to verify the TrueNAS certificate against (`localhost` for TrueNAS's default certificate) |
+| `ORCH_TRUENAS_INSECURE_TLS` | `false` | Skip TrueNAS certificate verification; logged as a warning |
+| `ORCH_TRUENAS_FIXTURES` | `fixtures/truenas` | Fixture directory the fake reads `scenarios/<name>.json` from |
+| `ORCH_TRUENAS_FAKE_MNT` | `/mnt` | Replaces `@MNT@` in the fake's scenario |
+| `ORCH_STATE_STORAGE` | empty | State dataset path (deploy key, known_hosts); must be an existing directory when set |
+| `ORCH_SELF_APP` | `truenas-orchestrator` | The orchestrator's own TrueNAS app, which it never modifies |
+
+`just dev` runs against the fake TrueNAS (`fake:fresh`) with storage under `dist/dev-storage/mnt/tank`, laid
+out like the fake's pool. Pick another scenario with e.g. `ORCH_TRUENAS_URL=fake:ready just dev-api`
+(`fixtures/truenas/README.md` lists them); the fake's state lives in memory and resets on restart. With
+the fake, the readiness check skips the running-identity item (process uid and gid must equal `PUID` and
+`PGID`), because a developer's own uid never matches the scenario's `PUID`; it applies to a real `wss://`
+TrueNAS only.
 
 ## Documentation
 
@@ -85,6 +100,7 @@ Prerequisites: [just](https://github.com/casey/just), Go 1.27 and Node 22+. Run 
 | [docs/roadmap.md](docs/roadmap.md) | Milestones with live status |
 | [docs/decisions.md](docs/decisions.md) | Settled architectural decisions and why |
 | [docs/validator-checks.md](docs/validator-checks.md) | Validator finding codes |
+| [docs/hand-install.md](docs/hand-install.md) | Install on TrueNAS by hand; `deploy/bootstrap.sh` does the same steps |
 | [docs/architecture/go-guidelines.md](docs/architecture/go-guidelines.md) | Normative Go guidelines |
 | [docs/architecture/](docs/architecture/) | Env scopes, repo layout contract, `setup.toml`, components |
 

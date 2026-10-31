@@ -23,13 +23,65 @@ import (
 // Repo is a homelab repo checked out at a directory on disk.
 type Repo struct {
 	root string
+	opts Options
 }
 
 var _ homelab.Repo = (*Repo)(nil)
 
-// New returns a Repo for the working tree at root. It does not touch the disk.
+// Options configure how a Repo reaches its remote.
+type Options struct {
+	// SSHKey is the absolute path of the deploy key's private half. When the file exists, fetch
+	// and pull run ssh with only that key. Empty, or a missing file, leaves ssh's defaults.
+	SSHKey string
+	// KnownHosts is the absolute path of the known_hosts file ssh uses with SSHKey; new host keys
+	// are added to it on first use (StrictHostKeyChecking=accept-new). Empty leaves ssh's default.
+	KnownHosts string
+}
+
+// New returns a Repo for the working tree at root, with default Options. It does not touch the
+// disk.
 func New(root string) *Repo {
 	return &Repo{root: root}
+}
+
+// NewWithOptions returns a Repo for the working tree at root that reaches its remote as opts
+// says. It does not touch the disk.
+func NewWithOptions(root string, opts Options) *Repo {
+	return &Repo{root: root, opts: opts}
+}
+
+// sshEnv returns the GIT_SSH_COMMAND assignment that makes git use the deploy key, or nil when
+// no key is configured or its file does not exist (yet): a key generated after start-up is used
+// from the next fetch on.
+//
+// Both paths go through -o, never -i: ssh parses an -o value like a config line, which splits on
+// whitespace unless double-quoted and expands % tokens, whereas it takes -i literally and so
+// cannot carry a quoted path. Each value is therefore double-quoted for ssh (sshConfigValue)
+// inside one single-quoted word for the shell git runs the command through (shellQuote).
+func (r *Repo) sshEnv() []string {
+	if r.opts.SSHKey == "" {
+		return nil
+	}
+	if fi, err := os.Stat(r.opts.SSHKey); err != nil || !fi.Mode().IsRegular() {
+		return nil
+	}
+	cmd := "ssh -o " + shellQuote("IdentityFile="+sshConfigValue(r.opts.SSHKey)) + " -o IdentitiesOnly=yes"
+	if r.opts.KnownHosts != "" {
+		cmd += " -o " + shellQuote("UserKnownHostsFile="+sshConfigValue(r.opts.KnownHosts))
+	}
+	cmd += " -o StrictHostKeyChecking=accept-new"
+	return []string{"GIT_SSH_COMMAND=" + cmd}
+}
+
+// sshConfigValue double-quotes a path for an ssh -o option: backslash and double quote are
+// backslash-escaped, and % is doubled so that ssh's token expansion leaves it alone.
+func sshConfigValue(p string) string {
+	return `"` + strings.NewReplacer(`\`, `\\`, `"`, `\"`, "%", "%%").Replace(p) + `"`
+}
+
+// shellQuote quotes s for the shell git runs GIT_SSH_COMMAND through.
+func shellQuote(s string) string {
+	return "'" + strings.ReplaceAll(s, "'", `'\''`) + "'"
 }
 
 // Root returns the working tree's root directory.

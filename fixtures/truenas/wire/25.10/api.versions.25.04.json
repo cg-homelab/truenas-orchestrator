@@ -1,0 +1,8 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output; GET /api/versions body on a 25.04 server, which has no /api/v25.10.0 route",
+  "http_body": [
+    "v25.04.0",
+    "v25.04.1",
+    "v25.04.2"
+  ]
+}

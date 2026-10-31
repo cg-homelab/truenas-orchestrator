@@ -1,0 +1,21 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output",
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32602,
+    "message": "Invalid params",
+    "data": {
+      "error": 22,
+      "errname": "EINVAL",
+      "reason": "[EINVAL] filesystem.stat.path: String should have at least 1 character\n",
+      "trace": null,
+      "extra": [
+        [
+          "filesystem.stat.path",
+          "String should have at least 1 character",
+          22
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output; the reply when legacy_jobs is false; in legacy mode it is a job id",
+  "jsonrpc": "2.0",
+  "result": [
+    {
+      "job_id": null,
+      "error": null,
+      "result": "pong"
+    }
+  ]
+}

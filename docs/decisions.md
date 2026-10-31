@@ -6,7 +6,8 @@ editing the original.
 
 Status: D1–D14 `accepted` as of 2026-09-28; D15–D28 `accepted` as of 2026-10-30. D1 is superseded (by
 D15), and D2, D10 and D12 are amended (by D16, D17 and D18); read the later entry alongside the
-original.
+original. D32–D36 are accepted 2026-10-31 by the tech lead (M4 design, 2026-10-30; Martin to confirm), as are
+D37 and D38; D34 amends D5 and D35 amends D22.
 
 ---
 
@@ -526,3 +527,207 @@ injected ones do not change during a run.
 **Rejected:** allowing any deploy-env variable and redacting after resolution (redaction cannot know which
 fragment of a path is secret, and the stale-value problem remains); resolving against the post-run env (the
 plan would no longer be computable before writing, which breaks the dry run).
+
+---
+
+## D32 — Bootstrap end state: one homelab identity, POSIX-mode storage roots *(accepted 2026-10-31 by the tech lead; Martin to confirm)*
+
+**New.** Defines what `deploy/bootstrap.sh`, the hand-install guide and the orchestrator's own plan all
+converge on, and what the environment-readiness check accepts (D11).
+
+- **Identity.** One group `homelab` with gid `PGID` and one user `homelab` with uid `PUID`, both from
+  `compose/.global.env` (1000/1000 in the fixture). The user has `homelab` as its primary group,
+  `password_disabled`, `smb: false`, shell `/usr/sbin/nologin`, home `/var/empty`. A pre-existing group or
+  user that already holds the gid or uid, under any name, is accepted as-is; a `homelab` name that holds a
+  different id is a blocking problem. TrueNAS keeps 1000–2999 free for this (`MIN_AUTO_XID = 3000`, "to
+  avoid collision with apps uids/gids"), and its builtin `apps` user (568) is not used.
+- **The git user is the same identity.** The orchestrator container runs as `PUID:PGID`, owns
+  `$HOMELAB_STORAGE` and fetches with the deploy key. There is no separate git user.
+- **Datasets.** One dataset per writable storage root: `$HOMELAB_STORAGE`, `$APPCONFIG_STORAGE`,
+  `$DATABASE_STORAGE`, plus the orchestrator state dataset `$ORCH_STATE_STORAGE` (D10). Created with
+  `share_type: GENERIC`, `acltype: POSIX`, `aclmode: DISCARD`, `atime: OFF`, `compression: LZ4` and
+  `recordsize: 128K`, except `$DATABASE_STORAGE` at `16K`. Missing parents are created as plain
+  datasets that inherit everything. A dataset's name comes from the deepest existing dataset whose
+  mountpoint contains the path, not from string surgery on `/mnt/`. An existing root keeps its
+  properties: a property that differs from the list above is reported, never changed. The state dataset
+  is created only by bootstrap and the guide. The orchestrator checks it and never plans a change to it.
+  `$MEDIA_STORAGE` holds user data and is only checked for existence.
+- **Permissions.** Each writable root directory is owned by `PUID:PGID` with mode `0750` (state:
+  `0700`) and no extended ACL. This is set with `filesystem.setperm` (`stripacl: true`,
+  `recursive: false`), which touches only the root directory, never its contents.
+- **Networks.** `home`, `proxy`, `isolated` (`internal: true`) and `databases`, created by D33.
+- **Deploy key.** An ed25519 key at `$ORCH_STATE_STORAGE/ssh/id_ed25519` (mode `0600`, `PUID:PGID`)
+  beside `id_ed25519.pub` (`0644`) and `known_hosts`. The private key is never shown (D34).
+
+Why: M3 writes secret files at `0600` with no group bits. Those files are readable by the containers
+only if the orchestrator writes them as the same uid the containers run as, and git refuses a checkout
+owned by another uid ("dubious ownership"). One identity satisfies both. A dedicated git user would
+break one or the other. POSIX mode bits rather than NFSv4 ACLs: database images `chmod` their data
+directories, and that fails under NFSv4 `aclmode=restricted`. `ls -l` also shows the whole permission
+model. Datasets per root give separate snapshot, quota and recordsize policy.
+
+**Rejected:** a dedicated git user owning `$HOMELAB_STORAGE` (M3's `0600` secrets become unreadable to
+the containers, or the orchestrator needs root and a chown after every write); `share_type: APPS`
+(NFSv4 plus a grant to uid 568, but our containers run as `PUID`); recursive chown of existing roots
+(destructive on a server that already holds data); creating or chowning `$MEDIA_STORAGE` (user data,
+often shared over SMB with its own ACLs).
+
+---
+
+## D33 — The four docker networks come from a `homelab-networks` custom app *(accepted 2026-10-31 by the tech lead; Martin to confirm)*
+
+**New.** The TrueNAS middleware has no docker network create method. In 25.10, 27 and 28 the
+`docker.network` namespace holds only `query` and `get_instance`, and its entries carry no `internal`
+flag (`api/v25_10_0/docker_network.py` on `stable/goldeye`, `v27_0_0` on `stable/27`, `v28_0_0` and
+`plugins/docker/docker_network_crud.py` on `master`).
+
+The networks are therefore declared by a dedicated custom app, created with `app.create`
+(`custom_app: true`, `custom_compose_config_string`). Its compose file declares `home`, `proxy`,
+`isolated` (`internal: true`) and `databases` with explicit `name:`, so no `ix-` prefix applies, plus one
+placeholder service that attaches to all four. The placeholder is `busybox` running `sleep infinity`, read-only, non-root, all
+capabilities dropped. The compose text is one Go constant. `deploy/homelab-networks.yaml` is a
+byte-identical copy that bootstrap and the guide use, and a test asserts the two match.
+
+Readiness accepts a network that exists by name, however it was created, so a server whose networks
+were made by hand with `docker network create` is ready without the app. The app is planned only when
+all four are missing, or when every one that exists already belongs to compose project
+`ix-homelab-networks`. A mix of hand-made and missing networks is a blocking problem that names the
+`docker network create` commands to run, because compose cannot adopt an existing network under an
+explicit `name:`.
+
+Why: it keeps the orchestrator on the middleware API (D3: no docker socket) while letting it create the
+networks itself (D9). It gives the first-run wizard a complete path with no shell step. The networks
+also become visible and named in the TrueNAS Apps UI, and their definition, including `internal`, is
+reviewable text rather than a remembered command.
+
+**Consequence:** stopping or deleting the app in the TrueNAS UI runs `compose down`, which removes any
+of the four networks no running container is using (`plugins/apps/app_scale.py` `stop`). Readiness
+reports a missing network or a stopped app, and the app's compose file says not to stop it.
+
+**Rejected:** `docker network create` from `bootstrap.sh` only (the orchestrator could not create or
+repair networks, and the wizard would need a shell step; it stays the documented manual fallback);
+declaring the networks in the orchestrator's own app (D11: never manage its own entry, and reinstalling
+the orchestrator would try to remove networks every stack depends on); the docker socket (D3).
+
+---
+
+## D34 — The TrueNAS API key lives in SQLite behind a server-declared store; the deploy key is a file *(accepted 2026-10-31 by the tech lead; Martin to confirm)*
+
+**Amends D5** for secrets that are not `.env` files.
+
+- **API key.** A new `credentials` table (`name` primary key, `username`, `secret`, `updated_at`), with
+  one row `name = 'truenas'`. `internal/server` declares the interface it consumes:
+  `CredentialStore` with get, put and delete of `homelab.TrueNASCredentials{Username, APIKey
+  homelab.Secret}`. `*sqlite.Store` implements it. The key is a `homelab.Secret` from the row scan
+  onwards, and `Reveal()` happens only inside `truenas.Dial`, in the `auth.login_ex` payload. The API
+  reports only whether a key is configured and the username, never the key or any prefix of it. The audit
+  log records `truenas.credentials.write` and `truenas.credentials.delete` with the username only. A key is stored only
+  after a successful login and version check.
+- **Deploy key.** Generated in process (ed25519, OpenSSH format via `golang.org/x/crypto/ssh`) when
+  absent, and written through `homelab.SetupHost` under `$ORCH_STATE_STORAGE` (`ssh/` at `0700`, private
+  key `0600` by exclusive create, public key `0644`). It is never overwritten. `ssh` reads it from disk
+  for `git fetch`, so it must be a file. The public half and its SHA256 fingerprint are shown in the UI.
+  The private half never leaves the file.
+
+Why: `homelab.SecretStore` is shaped around whole `.env` files per app (comments and key order survive).
+An API key is a single credential with a username, so forcing it into that shape would mean a fake env
+file. SQLite is already the orchestrator's state on its own dataset (D10, D17), and a small interface
+keeps the D5 promise that an encrypted backend can replace the plaintext one without touching call
+sites. The interface is declared by its consumer, `server`, per go-guidelines section 3.3.
+
+**Consequence:** the key is plaintext in `orchestrator.db` (mode `0600`, on the state dataset), and every
+backup of that dataset contains it. This is the same posture D5 accepts for `.env`.
+
+**Rejected:** an env-file-shaped entry in `SecretStore` (a fake file and a fake app name); an
+environment variable in the app definition (visible to anyone who can read the TrueNAS app
+configuration, and changing it means redeploying the orchestrator's own app, which D11 forbids); storing
+the deploy key in SQLite (`ssh` needs a file, so it would be written out anyway).
+
+---
+
+## D35 — The TrueNAS client pins API `v25.10.0` over `wss://` through the UI port *(accepted 2026-10-31 by the tech lead; Martin to confirm)*
+
+**Amends D22**, which named `/api/current`. D22's transport and library choices stand.
+
+- **Endpoint.** The client connects to `wss://<host>/api/v25.10.0`. The middleware registers one route
+  per API version it ships (`main.py` `_add_api_route`) and adapts the calls on each one to that
+  version's schema. `v25.10.0` is served by every 25.10.x release, by 27 (`stable/27`) and by 28
+  (`master`), so the request and result shapes we decode stay fixed across that range.
+  `/api/current` changes shape with every release.
+- **TLS is mandatory.** A plain-API-key login over a connection the middleware does not consider secure
+  revokes the key (`plugins/auth.py`: "Attempt to use over an insecure transport"). A connection counts
+  as secure only if it is TLS, loopback or AF_UNIX (`utils/origin.py` `secure_transport`). The
+  orchestrator container is neither loopback nor AF_UNIX, so it goes through nginx on the HTTPS UI port.
+  `ws://` is refused by configuration except for a loopback host.
+- **Configuration.** `ORCH_TRUENAS_URL` (`wss://host[:port]`, or `fake[:scenario]` for development),
+  `ORCH_TRUENAS_CA_FILE` (PEM roots, e.g. the UI certificate exported by bootstrap),
+  `ORCH_TRUENAS_TLS_SERVER_NAME` (`localhost` for TrueNAS's default self-signed certificate, whose only
+  SAN is `localhost`), and `ORCH_TRUENAS_INSECURE_TLS` (default false; logs a warning on every connect).
+  The deployed app reaches the host as `host.docker.internal` through
+  `extra_hosts: host.docker.internal:host-gateway`.
+- **Session.** One connection per operation: dial, `auth.login_ex` (`API_KEY_PLAIN`), `system.version`
+  and the D36 range check, then `core.set_options {"legacy_jobs": false}` so that a job method's reply is
+  its final result. Domain calls follow, and the connection closes. The client pings every 20 s, because
+  nginx proxies `/api` with its default 60 s `proxy_read_timeout`. The read limit is raised to 16 MiB.
+
+Why: a pinned version is the middleware's own compatibility contract. Combined with D36 and
+`just smoke`, a TrueNAS upgrade becomes a range decision rather than a silent shape change.
+
+**Rejected:** `/api/current` (the shape follows the server); mounting `/var/run/middleware/middlewared.sock`
+into the container (an AF_UNIX connection from uid 0 is authenticated as root with no key, so the
+container's root becomes full TrueNAS admin and the API key, its audit identity and revocation stop
+meaning anything); `ws://` on port 80 (revokes the key).
+
+---
+
+## D36 — Supported TrueNAS versions: 25.10 up to, not including, 28 *(accepted 2026-10-31 by the tech lead; Martin to confirm)*
+
+**New.** `homelab.SupportedTrueNAS` accepts a version when its major.minor is at least 25.10 and its major is
+below 28. That covers 25.10.x and 27.x, including release candidates such as `27.0.0-RC.1` (the release
+first developed as 26 was renamed 27 at RC.1; GA is planned for December 2026). The check runs on the
+`system.version` string (`TrueNAS-25.10.1`; 24.10 and earlier said `TrueNAS-SCALE-24.10.2`) immediately
+after login and before any domain call. Out of range is a `*homelab.UnsupportedVersionError` that
+wraps `ErrValidation` and names both versions: `TrueNAS 25.04.2.6 is not supported: this orchestrator
+supports TrueNAS 25.10 through 27.x`. If the server does not serve `/api/v25.10.0` at all, the client
+reads the unauthenticated `GET /api/versions` and reports the API versions it does serve, with the same
+wording.
+
+Why: 25.10 is the floor for `legacy_jobs` and for the `v25.10.0` endpoint (D35). 28 is an unreleased
+preview whose `v28` API already drops `auth.login_with_api_key`, so the ceiling is the newest release we
+can smoke. Raising the ceiling is deliberate: run `just smoke` against the new release, update the
+constant, and add a note to this entry.
+
+**Rejected:** supporting 25.04 (no `v25.10.0` endpoint, no `legacy_jobs` option, so job polling over
+`core.get_jobs` would be needed for one release line); no ceiling (a future schema change would surface
+as a decode error, which acceptance criterion 7 forbids).
+
+---
+
+## D37 — M4 limitation: the orchestrator app runs as PUID 1000 *(accepted 2026-10-31 by the tech lead; Martin to confirm)*
+
+**New.** The M4 image creates one user (uid 1000), and ssh refuses to run for a uid without a passwd
+entry, so the orchestrator app must run as `PUID` 1000. Bootstrap step B0 blocks any other value. The
+readiness `identity` item (`CheckIdentity`, process uid/gid against `PUID`/`PGID`) reports a mismatch; it
+is enabled only for a real TrueNAS URL, so the fake and dev runs skip it.
+
+Why: git over ssh with the deploy key is the only way the orchestrator reaches the homelab repo, and it
+fails at runtime with an unhelpful message when the uid has no passwd entry. A blocked bootstrap is a
+better place to say so than a failed fetch.
+
+**Rejected:** an entrypoint or nss_wrapper that synthesises a passwd entry for any uid (the right
+follow-up, not needed yet); running the app as root (breaks the single-identity model of D32).
+
+---
+
+## D38 — Legacy-job fallback polls `core.get_jobs` *(accepted 2026-10-31 by the tech lead; Martin to confirm)*
+
+**New.** When a job method replies with a bare number (the legacy-job reply), the client polls it through
+`core.get_jobs` (select `id`, `state`, `error`, `exc_info`) until it reaches a terminal state.
+`core.job_wait` cannot be used: in legacy mode it is itself a job, so waiting on it needs the very wait it
+would provide.
+
+Why: the docs and the middleware source disagree about `legacy_jobs: false` (design section 13, item 3), so
+the client handles both reply shapes and the smoke `jobs` check settles which one the server uses.
+
+**Rejected:** `core.job_wait` (recursion described above); failing on a bare-number reply (it would make
+the client depend on an unverified server option).

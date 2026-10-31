@@ -19,6 +19,9 @@ func addRoutes(mux *http.ServeMux, api huma.API, deps Deps, svc *services) {
 		repo = deps.Repo
 	}
 	setup := setupDeps{repo: repo, secrets: deps.Secrets, host: deps.Host}
+	tn := truenasDeps{dial: deps.TrueNAS, creds: deps.Credentials, url: deps.TrueNASURL, env: deps.Environment}
+	environment := environmentDeps{truenas: tn, repo: repo, host: deps.Host}
+	deployKey := deployKeyDeps{host: deps.Host, stateRoot: deps.Environment.StateStorage}
 
 	// Public.
 	huma.Register(api, opGetHealth, handleGetHealth(readBuildInfo(deps.Version)))
@@ -43,6 +46,13 @@ func addRoutes(mux *http.ServeMux, api huma.API, deps Deps, svc *services) {
 	huma.Register(api, opPlanStackSetup, handlePlanStackSetup(logger, svc.reports, setup))
 	huma.Register(api, opRunStackSetup, handleRunStackSetup(logger, svc.reports, setup, svc.jobs, svc.audit, svc.envLocks))
 	huma.Register(api, opListAudit, handleListAudit(logger, store))
+	huma.Register(api, opGetTrueNASSettings, handleGetTrueNASSettings(logger, tn))
+	huma.Register(api, opPutTrueNASSettings, handlePutTrueNASSettings(logger, tn, svc.audit, svc.now))
+	huma.Register(api, opDeleteTrueNASSettings, handleDeleteTrueNASSettings(logger, tn, svc.audit))
+	huma.Register(api, opGetEnvironment, handleGetEnvironment(logger, environment))
+	huma.Register(api, opRunBootstrap, handleRunBootstrap(logger, environment, svc.jobs, svc.audit))
+	huma.Register(api, opGetDeployKey, handleGetDeployKey(logger, deployKey))
+	huma.Register(api, opCreateDeployKey, handleCreateDeployKey(logger, deployKey, svc.audit))
 
 	// Unknown API paths are a JSON 404, never the SPA.
 	mux.Handle("/api/", handleAPINotFound(api))

@@ -1,0 +1,264 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output",
+  "jsonrpc": "2.0",
+  "result": [
+    {
+      "id": "tank",
+      "type": "FILESYSTEM",
+      "name": "tank",
+      "pool": "tank",
+      "encrypted": false,
+      "encryption_root": null,
+      "key_loaded": true,
+      "locked": false,
+      "mountpoint": "/mnt/tank",
+      "acltype": {
+        "parsed": "posix",
+        "rawvalue": "posix",
+        "value": "POSIX",
+        "source": "DEFAULT"
+      },
+      "aclmode": {
+        "parsed": "discard",
+        "rawvalue": "discard",
+        "value": "DISCARD",
+        "source": "DEFAULT"
+      },
+      "atime": {
+        "parsed": "on",
+        "rawvalue": "on",
+        "value": "ON",
+        "source": "DEFAULT"
+      },
+      "compression": {
+        "parsed": "lz4",
+        "rawvalue": "lz4",
+        "value": "LZ4",
+        "source": "DEFAULT"
+      },
+      "recordsize": {
+        "parsed": 131072,
+        "rawvalue": "131072",
+        "value": "128K",
+        "source": "DEFAULT"
+      },
+      "encryption_algorithm": null,
+      "key_format": null
+    },
+    {
+      "id": "tank/apps",
+      "type": "FILESYSTEM",
+      "name": "tank/apps",
+      "pool": "tank",
+      "encrypted": false,
+      "encryption_root": null,
+      "key_loaded": true,
+      "locked": false,
+      "mountpoint": "/mnt/tank/apps",
+      "acltype": {
+        "parsed": "posix",
+        "rawvalue": "posix",
+        "value": "POSIX",
+        "source": "INHERITED"
+      },
+      "aclmode": {
+        "parsed": "discard",
+        "rawvalue": "discard",
+        "value": "DISCARD",
+        "source": "INHERITED"
+      },
+      "atime": {
+        "parsed": "on",
+        "rawvalue": "on",
+        "value": "ON",
+        "source": "INHERITED"
+      },
+      "compression": {
+        "parsed": "lz4",
+        "rawvalue": "lz4",
+        "value": "LZ4",
+        "source": "INHERITED"
+      },
+      "recordsize": {
+        "parsed": 131072,
+        "rawvalue": "131072",
+        "value": "128K",
+        "source": "INHERITED"
+      },
+      "encryption_algorithm": null,
+      "key_format": null
+    },
+    {
+      "id": "tank/apps/appconfigs",
+      "type": "FILESYSTEM",
+      "name": "tank/apps/appconfigs",
+      "pool": "tank",
+      "encrypted": false,
+      "encryption_root": null,
+      "key_loaded": true,
+      "locked": false,
+      "mountpoint": "/mnt/tank/apps/appconfigs",
+      "acltype": {
+        "parsed": "posix",
+        "rawvalue": "posix",
+        "value": "POSIX",
+        "source": "LOCAL"
+      },
+      "aclmode": {
+        "parsed": "discard",
+        "rawvalue": "discard",
+        "value": "DISCARD",
+        "source": "LOCAL"
+      },
+      "atime": {
+        "parsed": "off",
+        "rawvalue": "off",
+        "value": "OFF",
+        "source": "LOCAL"
+      },
+      "compression": {
+        "parsed": "lz4",
+        "rawvalue": "lz4",
+        "value": "LZ4",
+        "source": "LOCAL"
+      },
+      "recordsize": {
+        "parsed": 131072,
+        "rawvalue": "131072",
+        "value": "128K",
+        "source": "LOCAL"
+      },
+      "encryption_algorithm": null,
+      "key_format": null
+    },
+    {
+      "id": "tank/databases",
+      "type": "FILESYSTEM",
+      "name": "tank/databases",
+      "pool": "tank",
+      "encrypted": false,
+      "encryption_root": null,
+      "key_loaded": true,
+      "locked": false,
+      "mountpoint": "/mnt/tank/databases",
+      "acltype": {
+        "parsed": "posix",
+        "rawvalue": "posix",
+        "value": "POSIX",
+        "source": "LOCAL"
+      },
+      "aclmode": {
+        "parsed": "discard",
+        "rawvalue": "discard",
+        "value": "DISCARD",
+        "source": "LOCAL"
+      },
+      "atime": {
+        "parsed": "off",
+        "rawvalue": "off",
+        "value": "OFF",
+        "source": "LOCAL"
+      },
+      "compression": {
+        "parsed": "lz4",
+        "rawvalue": "lz4",
+        "value": "LZ4",
+        "source": "LOCAL"
+      },
+      "recordsize": {
+        "parsed": 16384,
+        "rawvalue": "16384",
+        "value": "16K",
+        "source": "LOCAL"
+      },
+      "encryption_algorithm": null,
+      "key_format": null
+    },
+    {
+      "id": "tank/media",
+      "type": "FILESYSTEM",
+      "name": "tank/media",
+      "pool": "tank",
+      "encrypted": false,
+      "encryption_root": null,
+      "key_loaded": true,
+      "locked": false,
+      "mountpoint": "/mnt/tank/media",
+      "acltype": {
+        "parsed": "nfsv4",
+        "rawvalue": "nfsv4",
+        "value": "NFSV4",
+        "source": "LOCAL"
+      },
+      "aclmode": {
+        "parsed": "restricted",
+        "rawvalue": "restricted",
+        "value": "RESTRICTED",
+        "source": "LOCAL"
+      },
+      "atime": {
+        "parsed": "off",
+        "rawvalue": "off",
+        "value": "OFF",
+        "source": "LOCAL"
+      },
+      "compression": {
+        "parsed": "lz4",
+        "rawvalue": "lz4",
+        "value": "LZ4",
+        "source": "LOCAL"
+      },
+      "recordsize": {
+        "parsed": 1048576,
+        "rawvalue": "1048576",
+        "value": "1M",
+        "source": "LOCAL"
+      },
+      "encryption_algorithm": null,
+      "key_format": null
+    },
+    {
+      "id": "tank/secure",
+      "type": "FILESYSTEM",
+      "name": "tank/secure",
+      "pool": "tank",
+      "encrypted": true,
+      "encryption_root": "tank/secure",
+      "key_loaded": false,
+      "locked": true,
+      "mountpoint": null,
+      "acltype": {
+        "parsed": "posix",
+        "rawvalue": "posix",
+        "value": "POSIX",
+        "source": "LOCAL"
+      },
+      "aclmode": {
+        "parsed": "discard",
+        "rawvalue": "discard",
+        "value": "DISCARD",
+        "source": "LOCAL"
+      },
+      "atime": {
+        "parsed": "off",
+        "rawvalue": "off",
+        "value": "OFF",
+        "source": "LOCAL"
+      },
+      "compression": {
+        "parsed": "lz4",
+        "rawvalue": "lz4",
+        "value": "LZ4",
+        "source": "LOCAL"
+      },
+      "recordsize": {
+        "parsed": 131072,
+        "rawvalue": "131072",
+        "value": "128K",
+        "source": "LOCAL"
+      },
+      "encryption_algorithm": null,
+      "key_format": null
+    }
+  ]
+}

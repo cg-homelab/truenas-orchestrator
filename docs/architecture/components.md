@@ -8,7 +8,7 @@ truenas-orchestrator/
 ├── go.mod                        # single module, go 1.27; sqlc + goose via the `tool` directive
 ├── .golangci.yml                 # strict lint set; depguard keeps the domain I/O-free (D26)
 ├── cmd/
-│   └── orchestrator/             # main + run(ctx, args, environ, stdout): serve | validate | openapi
+│   └── orchestrator/             # main + run(ctx, args, environ, stdout): serve | validate | openapi | smoke
 ├── internal/
 │   ├── homelab/                  # pure domain: layout, env scopes, validation, interfaces. No I/O
 │   ├── compose/                  # parse compose.yaml, ${VAR} per scope, render manifests. No I/O
@@ -23,6 +23,7 @@ truenas-orchestrator/
 │   └── truenas/                  # recorded middleware responses for the fake
 ├── deploy/
 │   ├── compose.yaml              # the TrueNAS app definition for the orchestrator itself
+│   ├── homelab-networks.yaml     # the custom app that owns the four docker networks (D33)
 │   └── bootstrap.sh              # first run: datasets, networks, git user, install app
 ├── Dockerfile                    # alpine + git + openssh-client; copies in the cross-compiled binary
 └── docs/
@@ -62,6 +63,8 @@ other way is a design error, not a convenience.
 
 The layout contract, the env-scope model, the `setup.toml` schema, and the whole validation engine.
 Takes already-read content in and returns findings out. Touches no filesystem, no network, no database.
+Since M4 it also holds the TrueNAS types and the `TrueNAS` interface, the environment readiness check and
+bootstrap plan, and the deploy-key logic.
 
 This is the constraint that makes M1 testable: the entire validator can be exercised from in-memory
 fixtures with plain unit tests, with no server, no database and no TrueNAS. Resist every temptation to
@@ -137,7 +140,8 @@ system runs and tests locally with no TrueNAS (D12).
 Pool, migrations, and query functions (D17). `modernc.org/sqlite` needs no cgo, so the linux binary
 cross-compiles from macOS. Queries are SQL files compiled into typed Go by `sqlc`, with the generated
 code checked in so CI builds without a database. Migrations are `goose` SQL files embedded with `embed`
-and applied at startup. Tables: users, sessions, api_tokens, jobs, audit_log, schedules, app_provenance.
+and applied at startup. Tables: users, sessions, api_tokens, jobs, audit_log, credentials (the TrueNAS
+API key, D34), schedules, app_provenance.
 
 ### `internal/server` — HTTP and auth only
 
@@ -170,6 +174,8 @@ constructs only its own dependencies, so `validate` and `openapi` run without a 
   non-zero on any error-severity finding. No HTTP involved.
 - `openapi` — writes the OpenAPI document to stdout, for client generation and `just check-api`. It
   builds the API with `server.NewAPI` and serializes it; nothing listens.
+- `smoke` — read-only compatibility checks against a real TrueNAS (`just smoke <host>`); the API key
+  comes from `TRUENAS_API_KEY` only. No database.
 
 ## Frontend
 
@@ -191,7 +197,7 @@ Screens arrive by milestone:
 |---|---|
 | [M2](../milestones/m2-validator-server.md) | Login; stack list with status badges; stack detail with findings (code, file, line, fix); resolved-env table showing both scopes separately; repo status |
 | [M3](../milestones/m3-app-setup.md) | `.env` editor with per-key validation and masked values; setup wizard driven by `setup.toml` |
-| [M4](../milestones/m4-truenas-client-bootstrap.md) | Bootstrap / environment-readiness view |
+| [M4](../milestones/m4-truenas-client-bootstrap.md) | Environment page: TrueNAS connection, readiness, bootstrap plan preview and run, deploy key |
 | [M5](../milestones/m5-deploy.md) | Deploy view: rendered manifest, deploy button, job log, and always a copy-able paste fallback |
 | [M6](../milestones/m6-catalog.md) | Catalog browser, add-app flow, upstream-drift indicator |
 | [M7](../milestones/m7-lifecycle.md) | Updates view, schedule configuration, deploy history with diff and rollback |

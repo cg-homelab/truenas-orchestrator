@@ -3,7 +3,15 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 gobin := `go env GOPATH` + "/bin"
 export PATH := gobin + ":" + env("PATH")
 
-dev_env := "ORCH_LISTEN=:8080 ORCH_DB_PATH=dist/dev.db HOMELAB_STORAGE=dist/dev-homelab ORCH_CHECK_HOST_PATHS=false ORCH_SECURE_COOKIES=false"
+# Development storage mirrors the fake TrueNAS's pool: tank at dist/dev-storage/mnt/tank, the homelab
+# repo at tank/apps/homelab and the state dataset at tank/orchestrator (fixtures/truenas/README.md).
+dev_storage := justfile_directory() / "dist/dev-storage"
+dev_mnt := dev_storage / "mnt"
+dev_homelab := dev_mnt / "tank/apps/homelab"
+
+# ORCH_TRUENAS_URL defaults to the fake's fresh scenario; override it from the caller's environment,
+# e.g. `ORCH_TRUENAS_URL=fake:ready just dev-api`.
+dev_env := "ORCH_LISTEN=:8080 ORCH_DB_PATH=dist/dev.db HOMELAB_STORAGE='" + dev_homelab + "' ORCH_CHECK_HOST_PATHS=false ORCH_SECURE_COOKIES=false ORCH_TRUENAS_URL=${ORCH_TRUENAS_URL:-fake:fresh} ORCH_TRUENAS_FIXTURES='" + justfile_directory() / "fixtures/truenas" + "' ORCH_TRUENAS_FAKE_MNT='" + dev_mnt + "' ORCH_STATE_STORAGE='" + dev_mnt / "tank/orchestrator" + "'"
 
 # List recipes.
 default:
@@ -76,9 +84,10 @@ build-image: build-linux
 validate path:
     go run ./cmd/orchestrator validate {{path}}
 
-# Smoke test against a deployed host.
-smoke host:
-    echo "smoke: not yet implemented (M4)"; exit 1
+# Check the TrueNAS API at host with read-only calls (pass --record fixtures/truenas/wire to record).
+# The API key comes from TRUENAS_API_KEY in the caller's environment; no flag accepts it.
+smoke host *args:
+    TRUENAS_URL=wss://{{host}} go run ./cmd/orchestrator smoke {{args}}
 
 # Remove build output.
 clean:
@@ -91,5 +100,5 @@ _frontend-build:
 [private]
 _dev-homelab:
     # The fixture's storage roots are /mnt/... paths that do not exist on a dev machine, so after
-    # materialising the repo point them at dist/dev-storage (compose/.global.env is gitignored).
-    if [ ! -d dist/dev-homelab/.git ]; then bash scripts/init-fixture-repo.sh dist/dev-homelab && bash scripts/dev-storage.sh dist/dev-homelab dist/dev-storage; fi
+    # materialising the repo point them at dist/dev-storage/mnt/tank, where the fake TrueNAS's pool is.
+    if [ ! -d '{{dev_homelab}}/.git' ]; then bash scripts/init-fixture-repo.sh '{{dev_homelab}}' >/dev/null && bash scripts/dev-storage.sh '{{dev_homelab}}' '{{dev_storage}}'; fi

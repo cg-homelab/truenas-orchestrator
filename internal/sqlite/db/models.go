@@ -26,6 +26,13 @@ type AuditLog struct {
 	DetailsJson string
 }
 
+type Credential struct {
+	Name      string
+	Username  string
+	Secret    string
+	UpdatedAt int64
+}
+
 type Job struct {
 	ID         string
 	Kind       string

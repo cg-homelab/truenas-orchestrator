@@ -77,4 +77,20 @@ Four external networks, created during bootstrap:
 ## Orchestrator state
 
 The orchestrator's own SQLite database lives on a dedicated dataset, separate from the homelab repo, so it
-survives container replacement and can never be committed by accident.
+survives container replacement and can never be committed by accident. Its host path is
+`ORCH_STATE_STORAGE` (orchestrator configuration, not `.global.env`), mounted at the same path in the
+container. Bootstrap and the hand-install guide create it (D32); the orchestrator only checks it.
+
+```
+$ORCH_STATE_STORAGE/                # dataset, owned PUID:PGID, mode 0700
+├── orchestrator.db                 # SQLite (ORCH_DB_PATH): accounts, jobs, audit log, the TrueNAS API key (D34)
+├── truenas-ca.pem                  # the TrueNAS UI certificate, mode 0644 (bootstrap B12)
+└── ssh/                            # mode 0700
+    ├── id_ed25519                  # deploy key, mode 0600; never overwritten, never shown
+    ├── id_ed25519.pub              # its public half, mode 0644; shown in the UI with its SHA256 fingerprint
+    └── known_hosts                 # the repo host's key, added on first fetch (StrictHostKeyChecking=accept-new)
+```
+
+The orchestrator generates the deploy key in process when it is absent (`create-deploy-key`), writing
+`ssh/` and both key files through the same `os.Root` adapter as setup. `git fetch` uses it through
+`GIT_SSH_COMMAND` once the private key file exists.

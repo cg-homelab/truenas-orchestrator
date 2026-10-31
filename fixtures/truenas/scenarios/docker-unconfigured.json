@@ -1,0 +1,396 @@
+{
+  "description": "fresh, but no apps pool is chosen: docker.status UNCONFIGURED, no networks, no apps",
+  "version": "TrueNAS-25.10.1",
+  "auth": "ok",
+  "results": {
+    "docker.status": {
+      "status": "UNCONFIGURED",
+      "description": "Docker has not been configured: choose a pool in Apps > Configuration"
+    },
+    "pool.dataset.query": [
+      {
+        "id": "tank",
+        "type": "FILESYSTEM",
+        "name": "tank",
+        "pool": "tank",
+        "encrypted": false,
+        "encryption_root": null,
+        "key_loaded": true,
+        "locked": false,
+        "mountpoint": "@MNT@/tank",
+        "acltype": {
+          "parsed": "posix",
+          "rawvalue": "posix",
+          "value": "POSIX",
+          "source": "DEFAULT"
+        },
+        "aclmode": {
+          "parsed": "discard",
+          "rawvalue": "discard",
+          "value": "DISCARD",
+          "source": "DEFAULT"
+        },
+        "atime": {
+          "parsed": "on",
+          "rawvalue": "on",
+          "value": "ON",
+          "source": "DEFAULT"
+        },
+        "compression": {
+          "parsed": "lz4",
+          "rawvalue": "lz4",
+          "value": "LZ4",
+          "source": "DEFAULT"
+        },
+        "recordsize": {
+          "parsed": 131072,
+          "rawvalue": "131072",
+          "value": "128K",
+          "source": "DEFAULT"
+        },
+        "encryption_algorithm": null,
+        "key_format": null
+      },
+      {
+        "id": "tank/media",
+        "type": "FILESYSTEM",
+        "name": "tank/media",
+        "pool": "tank",
+        "encrypted": false,
+        "encryption_root": null,
+        "key_loaded": true,
+        "locked": false,
+        "mountpoint": "@MNT@/tank/media",
+        "acltype": {
+          "parsed": "nfsv4",
+          "rawvalue": "nfsv4",
+          "value": "NFSV4",
+          "source": "LOCAL"
+        },
+        "aclmode": {
+          "parsed": "restricted",
+          "rawvalue": "restricted",
+          "value": "RESTRICTED",
+          "source": "LOCAL"
+        },
+        "atime": {
+          "parsed": "off",
+          "rawvalue": "off",
+          "value": "OFF",
+          "source": "LOCAL"
+        },
+        "compression": {
+          "parsed": "lz4",
+          "rawvalue": "lz4",
+          "value": "LZ4",
+          "source": "LOCAL"
+        },
+        "recordsize": {
+          "parsed": 1048576,
+          "rawvalue": "1048576",
+          "value": "1M",
+          "source": "LOCAL"
+        },
+        "encryption_algorithm": null,
+        "key_format": null
+      },
+      {
+        "id": "tank/orchestrator",
+        "type": "FILESYSTEM",
+        "name": "tank/orchestrator",
+        "pool": "tank",
+        "encrypted": false,
+        "encryption_root": null,
+        "key_loaded": true,
+        "locked": false,
+        "mountpoint": "@MNT@/tank/orchestrator",
+        "acltype": {
+          "parsed": "posix",
+          "rawvalue": "posix",
+          "value": "POSIX",
+          "source": "LOCAL"
+        },
+        "aclmode": {
+          "parsed": "discard",
+          "rawvalue": "discard",
+          "value": "DISCARD",
+          "source": "LOCAL"
+        },
+        "atime": {
+          "parsed": "off",
+          "rawvalue": "off",
+          "value": "OFF",
+          "source": "LOCAL"
+        },
+        "compression": {
+          "parsed": "lz4",
+          "rawvalue": "lz4",
+          "value": "LZ4",
+          "source": "LOCAL"
+        },
+        "recordsize": {
+          "parsed": 131072,
+          "rawvalue": "131072",
+          "value": "128K",
+          "source": "LOCAL"
+        },
+        "encryption_algorithm": null,
+        "key_format": null
+      }
+    ],
+    "user.query": [
+      {
+        "id": 1,
+        "uid": 0,
+        "username": "root",
+        "unixhash": "*",
+        "smbhash": "*",
+        "home": "/root",
+        "shell": "/usr/bin/zsh",
+        "full_name": "root",
+        "builtin": true,
+        "smb": false,
+        "userns_idmap": null,
+        "group": {
+          "id": 1,
+          "bsdgrp_gid": 0,
+          "bsdgrp_group": "root",
+          "bsdgrp_builtin": true,
+          "bsdgrp_sudo_commands": [],
+          "bsdgrp_sudo_commands_nopasswd": [],
+          "bsdgrp_smb": false,
+          "bsdgrp_userns_idmap": 0
+        },
+        "groups": [],
+        "password_disabled": true,
+        "ssh_password_enabled": false,
+        "sshpubkey": null,
+        "locked": false,
+        "sudo_commands": [],
+        "sudo_commands_nopasswd": [],
+        "email": null,
+        "local": true,
+        "immutable": true,
+        "twofactor_auth_configured": false,
+        "sid": null,
+        "last_password_change": null,
+        "password_age": null,
+        "password_history": null,
+        "password_change_required": false,
+        "roles": [],
+        "api_keys": []
+      },
+      {
+        "id": 30,
+        "uid": 568,
+        "username": "apps",
+        "unixhash": "*",
+        "smbhash": "*",
+        "home": "/var/empty",
+        "shell": "/usr/sbin/nologin",
+        "full_name": "Unprivileged apps user",
+        "builtin": true,
+        "smb": false,
+        "userns_idmap": null,
+        "group": {
+          "id": 30,
+          "bsdgrp_gid": 568,
+          "bsdgrp_group": "apps",
+          "bsdgrp_builtin": true,
+          "bsdgrp_sudo_commands": [],
+          "bsdgrp_sudo_commands_nopasswd": [],
+          "bsdgrp_smb": false,
+          "bsdgrp_userns_idmap": 0
+        },
+        "groups": [],
+        "password_disabled": true,
+        "ssh_password_enabled": false,
+        "sshpubkey": null,
+        "locked": false,
+        "sudo_commands": [],
+        "sudo_commands_nopasswd": [],
+        "email": null,
+        "local": true,
+        "immutable": true,
+        "twofactor_auth_configured": false,
+        "sid": null,
+        "last_password_change": null,
+        "password_age": null,
+        "password_history": null,
+        "password_change_required": false,
+        "roles": [],
+        "api_keys": []
+      },
+      {
+        "id": 71,
+        "uid": 950,
+        "username": "truenas_admin",
+        "unixhash": "*",
+        "smbhash": "*",
+        "home": "/home/truenas_admin",
+        "shell": "/usr/bin/zsh",
+        "full_name": "Local Administrator",
+        "builtin": false,
+        "smb": false,
+        "userns_idmap": null,
+        "group": {
+          "id": 41,
+          "bsdgrp_gid": 950,
+          "bsdgrp_group": "truenas_admin",
+          "bsdgrp_builtin": false,
+          "bsdgrp_sudo_commands": [],
+          "bsdgrp_sudo_commands_nopasswd": [],
+          "bsdgrp_smb": false,
+          "bsdgrp_userns_idmap": 0
+        },
+        "groups": [],
+        "password_disabled": true,
+        "ssh_password_enabled": false,
+        "sshpubkey": null,
+        "locked": false,
+        "sudo_commands": [],
+        "sudo_commands_nopasswd": [],
+        "email": null,
+        "local": true,
+        "immutable": false,
+        "twofactor_auth_configured": false,
+        "sid": null,
+        "last_password_change": null,
+        "password_age": null,
+        "password_history": null,
+        "password_change_required": false,
+        "roles": [],
+        "api_keys": []
+      }
+    ],
+    "group.query": [
+      {
+        "id": 1,
+        "gid": 0,
+        "name": "root",
+        "builtin": true,
+        "sudo_commands": [],
+        "sudo_commands_nopasswd": [],
+        "smb": false,
+        "userns_idmap": null,
+        "group": "root",
+        "local": true,
+        "sid": null,
+        "roles": [],
+        "users": [],
+        "immutable": true
+      },
+      {
+        "id": 30,
+        "gid": 568,
+        "name": "apps",
+        "builtin": true,
+        "sudo_commands": [],
+        "sudo_commands_nopasswd": [],
+        "smb": false,
+        "userns_idmap": null,
+        "group": "apps",
+        "local": true,
+        "sid": null,
+        "roles": [],
+        "users": [],
+        "immutable": true
+      },
+      {
+        "id": 40,
+        "gid": 544,
+        "name": "builtin_administrators",
+        "builtin": true,
+        "sudo_commands": [],
+        "sudo_commands_nopasswd": [],
+        "smb": false,
+        "userns_idmap": null,
+        "group": "builtin_administrators",
+        "local": true,
+        "sid": null,
+        "roles": [],
+        "users": [],
+        "immutable": true
+      },
+      {
+        "id": 42,
+        "gid": 545,
+        "name": "builtin_users",
+        "builtin": true,
+        "sudo_commands": [],
+        "sudo_commands_nopasswd": [],
+        "smb": false,
+        "userns_idmap": null,
+        "group": "builtin_users",
+        "local": true,
+        "sid": null,
+        "roles": [],
+        "users": [],
+        "immutable": true
+      },
+      {
+        "id": 43,
+        "gid": 999,
+        "name": "docker",
+        "builtin": true,
+        "sudo_commands": [],
+        "sudo_commands_nopasswd": [],
+        "smb": false,
+        "userns_idmap": null,
+        "group": "docker",
+        "local": true,
+        "sid": null,
+        "roles": [],
+        "users": [],
+        "immutable": true
+      },
+      {
+        "id": 41,
+        "gid": 950,
+        "name": "truenas_admin",
+        "builtin": false,
+        "sudo_commands": [],
+        "sudo_commands_nopasswd": [],
+        "smb": false,
+        "userns_idmap": null,
+        "group": "truenas_admin",
+        "local": true,
+        "sid": null,
+        "roles": [],
+        "users": [],
+        "immutable": false
+      }
+    ],
+    "filesystem.stat": {
+      "@MNT@/tank": {
+        "realpath": "@MNT@/tank",
+        "type": "DIRECTORY",
+        "uid": 0,
+        "gid": 0,
+        "mode": 16877,
+        "acl": false,
+        "is_mountpoint": true
+      },
+      "@MNT@/tank/media": {
+        "realpath": "@MNT@/tank/media",
+        "type": "DIRECTORY",
+        "uid": 0,
+        "gid": 0,
+        "mode": 16888,
+        "acl": true,
+        "is_mountpoint": true
+      },
+      "@MNT@/tank/orchestrator": {
+        "realpath": "@MNT@/tank/orchestrator",
+        "type": "DIRECTORY",
+        "uid": 1000,
+        "gid": 1000,
+        "mode": 16832,
+        "acl": false,
+        "is_mountpoint": true
+      }
+    },
+    "docker.network.query": [],
+    "app.query": []
+  }
+}

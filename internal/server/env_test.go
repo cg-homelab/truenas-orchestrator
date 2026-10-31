@@ -148,6 +148,8 @@ type envOptions struct {
 	wrapSecrets func(homelab.SecretStore) homelab.SecretStore
 	// noSecrets and noHost leave Deps.Secrets and Deps.Host nil.
 	noSecrets, noHost bool
+	// deps changes the server's Deps last, e.g. to add a TrueNAS dialer.
+	deps func(d *Deps)
 }
 
 func newEnv(t *testing.T, opts envOptions) *testEnv {
@@ -184,7 +186,7 @@ func newEnv(t *testing.T, opts envOptions) *testEnv {
 	if opts.noHost {
 		host = nil
 	}
-	s := NewServer(Deps{
+	deps := Deps{
 		Logger:          slog.New(slog.NewJSONHandler(env.logs, &slog.HandlerOptions{Level: slog.LevelDebug})),
 		Store:           store,
 		Repo:            env.repo,
@@ -195,7 +197,11 @@ func newEnv(t *testing.T, opts envOptions) *testEnv {
 		SessionIdle:     opts.idle,
 		SessionLifetime: opts.lifetime,
 		Now:             env.clock.Now,
-	})
+	}
+	if opts.deps != nil {
+		opts.deps(&deps)
+	}
+	s := NewServer(deps)
 	ctx, cancel := context.WithCancel(context.WithoutCancel(t.Context()))
 	done := make(chan struct{})
 	go func() {

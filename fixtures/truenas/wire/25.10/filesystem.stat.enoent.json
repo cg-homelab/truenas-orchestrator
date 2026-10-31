@@ -1,0 +1,15 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output",
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32001,
+    "message": "Method call error",
+    "data": {
+      "error": 2,
+      "errname": "ENOENT",
+      "reason": "Path /mnt/.orchestrator-smoke-absent not found",
+      "trace": null,
+      "extra": null
+    }
+  }
+}

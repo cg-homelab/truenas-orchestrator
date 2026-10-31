@@ -1,0 +1,42 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output; trace is present on the wire and must be discarded unread",
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32602,
+    "message": "Invalid params",
+    "data": {
+      "error": 22,
+      "errname": "EINVAL",
+      "reason": "[EINVAL] pool_dataset_create.name: Path /mnt/tank/apps/appconfigs already exists\n",
+      "trace": {
+        "class": "ValidationErrors",
+        "frames": [
+          {
+            "filename": "/usr/lib/python3/dist-packages/middlewared/plugins/pool_/dataset.py",
+            "lineno": 471,
+            "method": "do_create",
+            "line": "verrors.check()",
+            "argspec": [
+              "self",
+              "app",
+              "data"
+            ],
+            "locals": {
+              "data": "{'name': 'tank/apps/appconfigs'}",
+              "secret_local": "LOCALVALUE"
+            }
+          }
+        ],
+        "formatted": "Traceback (most recent call last): ...",
+        "repr": "ValidationErrors(...)"
+      },
+      "extra": [
+        [
+          "pool_dataset_create.name",
+          "Path /mnt/tank/apps/appconfigs already exists",
+          22
+        ]
+      ]
+    }
+  }
+}

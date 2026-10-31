@@ -1,0 +1,5 @@
+{
+  "_provenance": "synthetic from api/v25_10_0 (stable/goldeye); replace with orchestrator smoke --record output; job method answered in legacy mode: the job id",
+  "jsonrpc": "2.0",
+  "result": 1240
+}

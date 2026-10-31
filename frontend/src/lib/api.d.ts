@@ -144,6 +144,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/environment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check the TrueNAS environment and preview the bootstrap plan, without changing anything
+         * @description Returns 200 also when TrueNAS is not connected: connection.state says why, and items and steps are then empty.
+         */
+        get: operations["get-environment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/environment/bootstrap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start a job that runs the bootstrap plan
+         * @description Plans first. plan_digest must be the digest of the plan the user reviewed: a different fresh plan is a 409, and a plan with problems is a 422 listing them in errors; either way no job starts. The job connects again, re-plans, fails if that plan's digest differs, and runs the steps; running it twice changes nothing, and a plan with no steps succeeds with "nothing to do".
+         */
+        post: operations["run-bootstrap"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/environment/deploy-key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the public half of the SSH deploy key */
+        get: operations["get-deploy-key"];
+        put?: never;
+        /**
+         * Generate the SSH deploy key the orchestrator fetches the repo with
+         * @description Generates an ed25519 key on the state dataset and returns its public half. An existing key is never replaced: that is a 409.
+         */
+        post: operations["create-deploy-key"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -327,12 +388,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/truenas/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get how the orchestrator reaches TrueNAS; never the API key */
+        get: operations["get-truenas-settings"];
+        /**
+         * Save the TrueNAS API key after logging in with it
+         * @description Connects, logs in and checks the TrueNAS version with the submitted key, and saves it only when all three succeed. A rejected key or an unsupported version is a 422 whose message says why (for a version: the detected and the supported versions); an unreachable TrueNAS is a 502. The key is never echoed back.
+         */
+        put: operations["put-truenas-settings"];
+        post?: never;
+        /** Remove the saved TrueNAS API key */
+        delete: operations["delete-truenas-settings"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         AuditEntryView: {
-            /** @description What happened, e.g. env.write, secret.write, setup.run */
+            /** @description What happened, e.g. env.write, secret.write, setup.run, dataset.create, bootstrap.run */
             action: string;
             /** Format: date-time */
             at: string;
@@ -342,7 +425,7 @@ export interface components {
             };
             /** Format: int64 */
             id: number;
-            /** @description The repo-relative or absolute path written */
+            /** @description The repo-relative or absolute path written, or the TrueNAS object changed */
             target: string;
             /** @description Who made the change, or started the job that made it */
             user: string;
@@ -352,6 +435,32 @@ export interface components {
         };
         AuthStatus: {
             needs_setup: boolean;
+        };
+        BootstrapRequest: {
+            /** @description The digest of the plan the user reviewed (get-environment) */
+            plan_digest: string;
+        };
+        BootstrapStepView: {
+            /** @enum {string} */
+            action: "create" | "change";
+            /** @description Ids, dataset mountpoint and properties, and for permissions_set from_owner, from_mode, from_acl, to_owner, to_mode and stripacl (from_* empty for a directory the plan creates) */
+            detail: {
+                [key: string]: string;
+            };
+            /** @enum {string} */
+            kind: "group_create" | "user_create" | "dataset_create" | "permissions_set" | "app_create";
+            /** @description The group or user name, dataset name, path or app name */
+            target: string;
+        };
+        ConnectionView: {
+            /** @description The TrueNAS version, e.g. 25.10.1; empty when unknown */
+            detected_version: string;
+            /** @description Why the state is not ok, or the TrueNAS version when it is; never the key */
+            message: string;
+            /** @enum {string} */
+            state: "ok" | "not_configured" | "unreachable" | "auth_failed" | "unsupported_version" | "error";
+            /** @description The supported range, e.g. TrueNAS 25.10 through 27.x */
+            supported: string;
         };
         CreateTokenRequest: {
             /** @description What the token is for, e.g. laptop CLI */
@@ -369,6 +478,15 @@ export interface components {
             /** Format: password */
             password: string;
             username: string;
+        };
+        DeployKeyView: {
+            exists: boolean;
+            /** @description OpenSSH SHA256 fingerprint, e.g. SHA256:...; empty when none exists */
+            fingerprint: string;
+            /** @description Where the private key lives (or will); empty when ORCH_STATE_STORAGE is not set */
+            path: string;
+            /** @description The authorized_keys line to add to the repo as a read-only deploy key; empty when none exists */
+            public_key: string;
         };
         EnvEntry: {
             key: string;
@@ -422,6 +540,19 @@ export interface components {
             source: string;
             /** @description [REDACTED] unless reveal=true */
             value: string;
+        };
+        EnvironmentView: {
+            connection: components["schemas"]["ConnectionView"];
+            /** @description Identifies the steps; pass it as plan_digest to run-bootstrap. Empty when not connected */
+            digest: string;
+            items: components["schemas"]["ReadinessItemView"][] | null;
+            /** @description Everything that forbids a run, by key name and path */
+            problems: string[] | null;
+            /** @description Connected, and no item is missing, wrong or unknown */
+            ready: boolean;
+            /** @description Connected with no problems: run-bootstrap may run the steps */
+            runnable: boolean;
+            steps: components["schemas"]["BootstrapStepView"][] | null;
         };
         ErrorDetail: {
             /** @description Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id' */
@@ -547,6 +678,18 @@ export interface components {
             /** @enum {string} */
             state: "answered" | "set" | "missing";
         };
+        ReadinessItemView: {
+            /** @enum {string} */
+            kind: "version" | "docker" | "global_env" | "group" | "user" | "identity" | "dataset" | "state_dataset" | "permissions" | "media" | "networks" | "networks_app" | "self_app" | "deploy_key";
+            message: string;
+            /**
+             * @description missing: the plan fixes it; wrong: blocking, fix it by hand as the message says; differs: reported but accepted; unknown: could not be read, blocking
+             * @enum {string}
+             */
+            state: "ok" | "missing" | "wrong" | "differs" | "unknown";
+            /** @description A path, a dataset, an account or an app; empty for version-less items such as docker */
+            target: string;
+        };
         RepoView: {
             /** Format: int64 */
             ahead: number;
@@ -647,6 +790,30 @@ export interface components {
              */
             last_used_at: string | null;
             name: string;
+        };
+        TrueNASCredentialsInput: {
+            /**
+             * Format: password
+             * @description The API key; never echoed back, logged or returned
+             */
+            api_key: string;
+            /** @description The TrueNAS user that owns the key, e.g. truenas_admin */
+            username: string;
+        };
+        TrueNASSettings: {
+            /** @description Whether an API key is saved */
+            configured: boolean;
+            /** @description The orchestrator's own TrueNAS app, which it never modifies */
+            self_app: string;
+            /** @description Where TrueNAS is reached (ORCH_TRUENAS_URL); empty when not configured */
+            url: string;
+            /** @description The TrueNAS user the key belongs to; empty when none is saved */
+            username: string;
+        };
+        TrueNASSettingsSaved: {
+            configured: boolean;
+            /** @description The TrueNAS version the key logged in to, e.g. TrueNAS-25.10.1 */
+            version: string;
         };
         UserView: {
             username: string;
@@ -970,6 +1137,189 @@ export interface operations {
             };
             /** @description Not Found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-environment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnvironmentView"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "run-bootstrap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BootstrapRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobStarted"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-deploy-key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeployKeyView"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "create-deploy-key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeployKeyView"];
+                };
+            };
+            /** @description Conflict */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1519,6 +1869,113 @@ export interface operations {
             };
             /** @description Service Unavailable */
             503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-truenas-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrueNASSettings"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "put-truenas-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrueNASCredentialsInput"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrueNASSettingsSaved"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+            /** @description Bad Gateway */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "delete-truenas-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Error */
+            default: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -6,13 +6,6 @@ import (
 	"time"
 )
 
-// TrueNAS is the subset of the TrueNAS middleware API the domain calls. *truenas.Client and
-// truenas.Fake implement it. Methods are added as milestones need them.
-type TrueNAS interface {
-	// SystemVersion returns the TrueNAS SCALE version string.
-	SystemVersion(ctx context.Context) (string, error)
-}
-
 // RepoStatus is the git state of the homelab repo.
 type RepoStatus struct {
 	// Branch is the checked-out branch, or "(detached)" for a detached HEAD.
